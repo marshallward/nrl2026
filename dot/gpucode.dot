@@ -1,0 +1,102 @@
+digraph gpucode {
+    rankdir = LR
+    fontname = helvetica
+    //fontcolor = white
+    labeljust = r
+    node [
+        style = filled,
+        fontname = helvetica
+    ]
+    ranksep = 0.75
+    edge [color="white"]
+
+    concentrate = true
+    bgcolor = transparent
+
+    // Weird flag to enable the subgraph arrow hack
+    compound = True
+
+    // Code representations
+
+    Fortran [label="Fortran"]
+    C [label="C/C++"]
+    Other [label="Python,\nJulia, ..."]
+
+    OpenACC [label="OpenACC"]
+    OpenMP [label="OpenMP"]
+
+    CUDA [label="CUDA"]
+    OpenCL [label="OpenCL"]
+    HIP [label="HIP"]
+
+    PTX [label="PTX\n(Nvidia)"]
+    SPIR [label="SPIR\n(Intel? ...)"]
+    HSAIL [label="HSAIL\n(AMD)"]
+
+    // Compilation methods
+    // Actual connections:
+    //{Fortran, C} -> OpenMP
+    //{Fortran, C} -> OpenACC
+    // But it's just too many arrows
+
+    Fortran -> OpenACC [lhead=cluster_ext]
+    C -> OpenMP [lhead=cluster_ext]
+
+    Other -> CUDA [style="dashed"]
+
+    // Again, this is cosmetic hacks to connect cluster_ext to cluster_device
+
+    // All languages to all device code
+    //OpenMP -> HIP [ltail=cluster_lang, lhead=cluster_device]
+
+    //OpenACC -> CUDA [color="red"]
+    OpenACC -> OpenCL [ltail=cluster_ext, lhead=cluster_device]
+    OpenACC -> CUDA [color="red"]
+
+    // TODO: Verify
+    CUDA -> PTX [color="red"]
+    //OpenCL -> {SPIR, PTX}
+    //HIP -> {HSAIL, PTX}
+    OpenCL -> SPIR [ltail=cluster_device, lhead=cluster_ir]
+
+    subgraph cluster_lang {
+        label = "High-level Language"
+        style = "rounded"
+        bgcolor = "deepskyblue"
+        labeljust = l
+
+        Fortran ; C ; Other
+
+        subgraph cluster_ext {
+            label = "Language Extension"
+            style = "rounded"
+            labeljust = l
+
+            OpenACC ; OpenMP
+        }
+    }
+
+    subgraph cluster_device {
+        label = "Device API"
+        style = "rounded"
+        bgcolor = "deepskyblue"
+        labeljust = l
+
+        CUDA ; OpenCL ; HIP
+    }
+
+    subgraph cluster_ir {
+        label = "Low-Level IR"
+        style = "rounded"
+        bgcolor = "deepskyblue"
+        labeljust = l
+
+        PTX ; SPIR ; HSAIL
+    }
+}
+
+/* Refs:
+- https://www.openmp.org/about/openmp-faq/#WhatLanguages
+- https://en.wikipedia.org/wiki/OpenACC
+- https://en.wikipedia.org/wiki/CUDA
+*/

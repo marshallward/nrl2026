@@ -1,0 +1,125 @@
+digraph git_no_ff {
+    rankdir="TB"
+    nodesep=0.4
+    ranksep=0.25
+    outputorder=edgesfirst
+
+    bgcolor = transparent
+
+    // Global settings
+    node [
+        style=filled
+        color="black"
+        fontname="Inconsolata"
+        fontcolor=black
+    ]
+    edge [
+        arrowhead = vee
+        color = white
+        penwidth = 2
+    ]
+
+    // Branch label nodes
+    node [
+        fixedsize=false
+        penwidth=0
+        fillcolor=none
+        shape=none
+        width=0
+        height=0
+        margin="0.05"
+    ]
+    subgraph {
+        rank=sink
+        ne [label="dev/ncar", group="ncar", fontcolor = white]
+    }
+    subgraph {
+        rank=sink
+        me [label="main", group="main", fontcolor = white]
+    }
+    subgraph {
+        rank=sink
+        ge [label="dev/gfdl", group="gfdl", fontcolor = white]
+    }
+    subgraph {
+        rank=sink
+        se [label="dev/ice", group="ice", fontcolor = white]
+    }
+
+    // Commit nodes
+    node [
+        width=0.2
+        height=0.2
+        label=""
+        shape=circle
+        penwidth=2
+    ]
+
+    // main branch
+    node [
+        group="main"
+        fillcolor="#27E4F9"
+    ]
+    m1 -> m2 -> m3 -> m4
+    subgraph {
+        rank=source
+        ms [label="", width=0, height=0, penwidth=0]
+    }
+    //ms -> m1 [color="lightgray", style=dashed, arrowhead=none]
+    ms -> m1
+    m4 -> me [color="lightgray", style=dashed, arrowhead=none]
+
+    // GFDL branch
+    node [
+        group="gfdl"
+        fillcolor="magenta"
+    ]
+    g1 -> g2 -> g2p5 -> g3 -> g4
+    g5 -> g6
+    subgraph {
+        rank=source
+        gs [label="", width=0, height=0, penwidth=0]
+    }
+    gs -> g1 [color="lightgray", style=dashed, arrowhead=none]
+    g4 -> g5 [color="lightgray", style=dashed, arrowhead=none]
+    g6 -> ge [color="lightgray", style=dashed, arrowhead=none]
+
+    // dev branch (sea ice)
+    node [
+        group="ice"
+        fillcolor="magenta"
+    ]
+    s1 -> s2
+    subgraph {
+        rank=source
+        ss [label="", width=0, height=0, penwidth=0]
+    }
+    ss -> s1 [color="lightgray", style=dashed, arrowhead=none]
+    s2 -> se [color="lightgray", style=dashed, arrowhead=none]
+
+    // NCAR branch
+    node [
+        group="ncar"
+        fillcolor="yellow"
+    ]
+    n1 -> n2 -> n3
+    subgraph {
+        rank=source
+        ns [label="", width=0, height=0, penwidth=0]
+    }
+    ns -> n1 [color="lightgray", style=dashed, arrowhead=none]
+    n3 -> ne [color="lightgray", style=dashed, arrowhead=none]
+
+    // Branch interactions
+    m1 -> g1;
+    m1 -> n1;
+
+    g4 -> m2;
+    m2 -> g5;
+    g6 -> m3;
+
+    g2 -> s1;
+    s2 -> g3;
+
+    n3 -> m4;
+}

@@ -1,0 +1,556 @@
+====================
+Porting MOM6 to GPUs
+====================
+
+:authors:
+   - Marshall Ward
+   - Utheri Wagura
+   - Ed Yang
+   - Jorge Galvez Vallejo
+:organization: ... and the MOM6 consortium
+:description: Overview of GPU porting strategy for MOM6, with early results.
+:date: 2027-07-30
+:url: https://marshallward.org/nrl2026.html
+:preface:
+   Progress update of MOM6 porting to GPUs
+
+
+GPU technology
+==============
+
+.. figure:: img/dgemm_vs_daxpy.svg
+
+
+Our Challenge
+=============
+
+MOM6 is a community code used in ongoing research and operational tasks.  This
+creates several constraints.
+
+* Fairly large Fortran codebase (~200k LoC)
+
+* Answer changes disrupt ongoing research activities
+
+* Many solvers, each algorithmically different
+
+* Solvers support dozens of customizations
+
+Can it be ported to GPUs without disruption?
+
+
+Breakdown
+---------
+
+* Kernels may be over 1000 LoC
+
+* ``if``-blocks manage model features
+
+* Heavy use of derived types, even objects
+
+* Kernels contain function calls
+
+
+GPU Programming
+===============
+
+.. image:: img/kernel.svg
+   :width: 60%
+
+Separate solver into units of work (i.e. kernels)
+
+
+Diverse Kernels
+===============
+
+.. image:: img/gengpu.svg
+   :width: 80%
+
+Many ways to define kernels, each with pros and cons
+
+
+``do concurrent``?
+==================
+
+A language-standard loop to promote parallelization.
+
+Execution may occur in any order.
+
+.. "The execution order of the iterations can be left indeterminate..."
+
+.. The block of a DO CONCURRENT construct is executed for every active
+   combination of the index-name values.  Each execution of the block is an
+   iteration. The executions may occur in any order.
+
+.. code:: fortran
+
+   do concurrent (k=1:nk, j=1:nj, i=1:ni)
+       a(i,j,k) = b(i,j,k) + c(i,j,k)
+   enddo
+
+Cannot use order-dependent operations:
+
+* ``a(i) = a(i-1) + 1``
+
+* ``sum = sum + a(i)``
+
+* ``print *, i``
+
+But it's also a "contract" to be good (e.g. C's ``restrict``)
+
+
+.. ``do concurrent`` kernel
+   ========================
+
+   CUDA C++
+
+   .. code:: c++
+
+      // Define kernel
+      __global__ kernel(a, b, c, ni, nj, nk) {
+           i = blockIdx.x * blockDim.x + threadIdx.x;
+           j = blockIdx.y * blockDim.y + threadIdx.y;
+           k = blockIdx.z;
+
+          a(i,j,k) = b(i,j,k) + c(i,j,k);
+      }
+
+      // Submit kernel
+      kernel<<< grid, block >>>(a, b, c, ni, nj, nk);
+
+   Fortran ``do concurrent``
+
+   .. code:: fortran
+
+      do concurrent (k=1:nk, j=1:nj, i=1:ni)
+          a(i,j,k) = b(i,j,k) + c(i,j,k)
+      enddo
+
+
+NVIDIA's ``do concurrent``
+==========================
+
+``nvfortran`` takes a "``do concurrent``" block
+
+.. code:: fortran
+
+   do concurrent (k=1:nz, j=js:je, I=Isq:Ieq)
+     u_bc_accel(I,j,k) = CAu_pred(I,j,k) + PFu(I,j,k) + diffu(I,j,k)
+   enddo
+
+and converts it to an OpenACC kernel.
+
+.. code:: fortran
+
+   !$acc parallel loop collapse(3) vector_length(128)
+   do k=1,nz ; do j=js,je ; do I=Isq,Ieq
+     u_bc_accel(I,j,k) = CAu_pred(I,j,k) + PFu(I,j,k) + diffu(I,j,k)
+   enddo ; enddo ; enddo
+   !$acc end parallel loop
+
+CUDA threads-per-block (vector) is set to 128.
+
+
+Nested ``do concurrent``
+========================
+
+Nested ``do concurrent`` can launch with dynamic grid and block geometries.
+
+.. code:: fortran
+
+   do concurrent (j=jsh:jeh)
+     do concurrent (k=1:nz, I=ish-1:ieh)
+       u_cor(I,j,k) = u(I,j,k) + du(I,j) * visc_rem_u(I,j,k)
+     enddo
+   enddo
+
+For a 256 × 256 × 100 domain:
+
+* Grid: (804,66,1)
+* Block: (32,4,1)
+
+804 × 32 comprises the ``i-k`` loop, 66 × 4 the ``j`` loop
+
+
+A second example
+----------------
+
+256 × 256 × 100 kernel geometry is (9,64,1) × (32,4,1)
+
+.. code:: fortran
+
+   do concurrent (j=js:je)
+     do k=1,nz
+       do concurrent (I=is-1:ie)
+         uhbt(I,j) = uhbt(I,j) + uh0(I,j,k)
+         ubt(I,j) = ubt(I,j) + CS%frhatu(I,j,k) * u_uh0(I,j,k)
+       enddo
+     enddo
+   enddo
+
+* CPU cacheing prefers the inner ``i``-loop
+
+* GPU moves serial ``k`` inside, sets up blocks
+
+..  possible explanation
+
+    nj = 64*4 = 256
+
+    ni = 9*32 = 288 <- 257 rounded up to next 32-step
+
+
+Memory Management
+=================
+
+Move memory to device
+
+.. code:: fortran
+
+   !$omp target enter data map(to: a, b) map(alloc: c)
+
+Execute kernel
+
+.. code:: fortran
+
+   do concurrent (k=1:nk, j=1:nj, i=1:ni)
+       a(i,j,k) = b(i,j,k) + c(i,j,k)
+   enddo
+
+Return result to host
+
+.. code:: fortran
+
+   !$omp target exit data map(from: c) map(delete: a, b)
+
+
+Strategy
+========
+
+* Data transfers are expensive
+
+  * Move the entire problem to GPU
+
+* Shared/unified memory is unreliable
+
+  * Manual memory management
+
+* MOM codebase is large and complex
+
+  * do concurrent where we can
+
+  * OpenMP / OpenACC where we must
+
+
+..  The Team
+    ========
+
+    .. list-table::
+       :widths: 50 50
+
+       * - .. image:: img/ed.png
+              :height: 140
+
+           | Ed Yang
+           | (ACCESS-NRI)
+
+           .. image:: img/utheri.jpg
+              :height: 140
+
+           | Utheri Wagura
+           | (NOAA-GFDL)
+
+         - .. image:: img/jorge.png
+              :height: 140
+
+           | Jorge Galvez Vallejo
+           | (NCI Australia)
+
+           .. image:: img/marshall.png
+              :height: 140
+
+           | Marshall Ward
+           | (NOAA-GFDL)
+
+
+Double Gyre Test
+================
+
+.. list-table::
+   :widths: 40 60
+
+   * - .. image:: img/gyre.png
+
+     - * Simple layered dynamics
+
+       * Base domain: 32 × 32 grids, 100 layers
+
+       * Weak scaling tests in multiples of grid
+
+CPU is 96-core Zen 4 (Genoa), GPU is H100
+
+
+Dycore Performance
+==================
+
+.. image:: img/genoa_vs_h100_dycore.svg
+
+Performance is comparable to 96-core CPU with minimal code changes
+
+
+
+Bit Reproducibility
+===================
+
+.. image:: img/repro.svg
+
+Research and operations can continue uninterrupted
+
+.. *Except!* ``(a*b)+c`` *does not suppress FMAs*
+
+
+Dycore Breakdown
+================
+
+.. image:: img/genoa_vs_h100.svg
+
+
+.. CorAdCalc and Horvisc
+   ---------------------
+
+   Serial k-loop of many 2d ``do concurrent`` kernels.
+
+   Barotropic also in this camp, but no k-loop.  Does OK?
+
+
+   Continuity
+   ----------
+
+   Several "jki" loops optimized for CPU performance, but does not translate to
+   GPUs.
+
+
+   Vertical Friction
+   -----------------
+
+   2d kernel of many k-loop column solvers
+
+
+   Pressure force
+   --------------
+
+   "Mixed bag" of 3d and 2d kernels?
+
+
+FMS MPI Support
+===============
+
+.. image:: img/fms_mpi.svg
+
+Message passing FMS buffers are on GPUs
+
+.. Multinode requires OpenACC and OpenMP to reconcile node IDs
+
+
+Dycore Scaling
+==============
+
+.. image:: img/h100_dycore_scaling.svg
+
+We are seeing scalability with GPU over MPI
+
+
+Module scaling
+==============
+
+.. image:: img/mpi_scaling.svg
+
+
+Viable Solution?
+================
+
+* **Simple syntax**: Easy to write and maintain
+
+* **Standard Fortran**: If it breaks, they must fix!
+
+* Single codebase for CPU and GPU
+
+* Possible "smart" block geometry
+
+But there are limitations
+
+.. - Disadvantages
+
+.. * Trust compiler's grids/blocks
+
+.. * Automatic memory is slow
+
+.. * Manual memory is tedious
+
+.. * Implementation issues still exist
+
+
+Local arrays
+============
+
+No support yet for ``local(array)``, but OpenMP works
+
+.. code:: fortran
+
+   !$omp target teams loop collapse(2) private(c1)
+   do j=js,je ; do i=is,ie ; if (mask(i,j) > 0.) then
+     b_denom_1 = h(i,j,1) + a(i,j,1)
+     b1 = 1. / (b_denom_1 + a(i,j,2))
+     d1 = b_denom_1 * b1
+     visc_rem(i,j,1) = b1 * h(i,j,1)
+
+     do k=2,nz
+       c1(k) = a(i,j,k) * b1
+       b_denom_1 = h(i,j,k) + (a(i,j,k) * d1)
+       b1 = 1. / (b_denom_1 + a(i,j,k+1))
+       d1 = b_denom_1 * b1
+       visc_rem(i,j,k) = (h(i,j,k) + a(i,j,k) * visc_rem(i,j,k-1)) * b1
+     enddo
+
+     do k=nz-1,1,-1
+       visc_rem(i,j,k) = visc_rem(i,j,k) + c1(k+1) * visc_rem(i,j,k+1)
+     enddo
+   endif ; enddo ; enddo
+
+
+Derived Types
+=============
+
+Derived types and their arrays are handled separately.
+
+.. code:: fortran
+
+   !$omp target enter data map(to: G)
+   !$omp target enter data map(to: G%dxT, G%dxCu, G%dxCv, G%dxBu)
+
+Care must be taken when updating derived types
+
+.. code:: fortran
+
+   ! Transfer CS and its scalars
+   !$omp target enter data map(to CS)
+
+   ! Set up CS arrays
+   !$omp target enter data map(to: CS%a_u, CS%a_v)
+   !$omp target enter data map(to: CS%h_u, CS%h_v)
+
+   ! This would overwrite CS pointers and lose array data!
+   !$omp target update to(CS)
+
+
+No Objects on GPUs
+==================
+
+Dynamic object-oriented constructs are volatile
+
+.. code:: fortran
+
+   class(EOS_base), allocatable :: type
+
+.. code:: fortran
+
+   procedure(i_density), deferred :: density
+
+.. code:: fortran
+
+   real elemental function density_linear(this, T, S, p)
+     class(EOS), intent(in) :: this
+     real, intent(in) :: T, S, p
+
+     density_elem_linear = this%Rho_T0_S0 + this%dRho_dT * T &
+         + this%dRho_dS * S + this%dRho_dp * p
+   end function density_linear
+
+But this is not a problem unique to Fortran.
+
+
+Function Inlining
+=================
+
+Kernel performance depends on inline of GPU functions
+
+.. code:: fortran
+
+   do concurrent (k=1:nz)
+      do concurrent (J=Jsq-1:Jeq+1, I=Isq-1:Ieq+1)
+        dvdx(I,J) = (v(i+1,J,k)*G%dyCv(i+1,J)) - (v(i,J,k)*G%dyCv(i,J))
+        dudy(I,J) = (u(I,j+1,k)*G%dxCu(I,j+1)) - (u(I,j,k)*G%dxCu(I,j))
+      enddo
+
+      ! Derived types: OBC, G, GV, US, CS
+      call gradKE(u, v, h, KE, KEx, KEy, k, OBC, G, GV, US, CS)
+
+      ! ...
+   enddo
+
+But function calls do not inline if they pass derived types
+
+
+Team parallelization
+====================
+
+.. image:: img/coradcalc_teams.svg
+
+Functions with derived type input do not inline.  Removing these arguments
+improves performance.
+
+
+Async kernels?
+==============
+
+.. image:: img/async1.png
+
+.. image:: img/async2.png
+
+Using ``async`` allows kernel overhead of one kernel to overlap with the work
+of another.
+
+.. TODO: code blocks?
+
+
+Async speedup
+-------------
+
+.. image:: img/async_speedup.png
+
+
+Switch to OpenACC?
+==================
+
+OpenMP was chosen for portability, but there are occasional issues.
+
+* "``!$omp target``" and "``do concurrent``" can clash
+
+* No ``"worker"`` abstraction prevents 2D thread geometries.
+
+* Missing features like ``async``  (``nowait``)
+
+
+Fortran on the GPU
+==================
+
+* It's working.  Numbers are competitive and still improving.
+
+* Reproducible.  Operational models can continue.
+
+* Compilers are only getting better.
+
+MOM6 can run on GPUs using standard Fortran constructs.  We expect further
+improvements as we gain proficiency with the algorithms and technology.
+
+
+Upcoming challenges
+-------------------
+
+* The next milestone (``benchmark``) touches many of the above issues.
+
+* We cannot write diagnostics!  MOM6 has a complex diagnostic manager which
+  will require complex design decisions.
+
+* The ultimate goal is GFDL's OM5 configuration.
+
+  * By this point, each respective group could be working on their own
+    configuration of interest!

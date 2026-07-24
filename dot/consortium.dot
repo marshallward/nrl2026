@@ -1,0 +1,138 @@
+digraph GitRepos {
+    layout = "twopi"
+    root = "main"
+    ranksep = 2.5
+    ratio = auto
+    //overlap = false
+
+    concentrate = true
+    bgcolor = transparent
+
+    node [
+        shape = circle
+        style = filled
+        //fontcolor = white
+        fontname = helvetica
+        fixedsize = true
+        width = 1.5
+    ]
+    edge [
+        color = white
+    ]
+
+    main [
+        label = <MOM-ocean<br/><font face="Inconsolata">main</font>>,
+    ] 
+    gfdl [
+        label = <NOAA-GFDL<br/><font face="Inconsolata">main<br/>dev/gfdl</font>>,
+        fillcolor = "deepskyblue",
+    ]
+    ncar [
+        label = <NCAR<br/><font face="Inconsolata">main<br/>dev/ncar</font>>,
+        fillcolor = "mediumaquamarine",
+    ]
+    fsu [
+        label = <FSU<br/><font face="Inconsolata">main<br/>dev/fsu</font>>,
+        fillcolor = "orange",
+    ]
+    nasa [
+        label = <NASA-GMAO<br/><font face="Inconsolata">main<br/>dev/gmao</font>>,
+        fillcolor = "white",
+    ]
+    ncep [
+        label = <NOAA-NCEP<br/><font face="Inconsolata">main<br/>dev/ncep</font>>,
+        fillcolor = "cornflowerblue",
+    ]
+    esmg [
+        label = <Rutgers<br/>ESMG<br/><font face="Inconsolata">main<br/>dev/esmg</font>>,
+        fillcolor = "salmon",
+    ]
+    access [
+        label = <ACCESS<br/><font face="Inconsolata">main<br/>dev/access</font>>,
+        fillcolor = "gold",
+    ]
+
+    kiost [
+        label = <KIOST<br/><font face="Inconsolata">main<br/>dev/kiost</font>>,
+        fillcolor = "salmon",
+    ]
+
+    gfdl -> main [dir = both]
+    ncar -> main [dir = both]
+    fsu -> main [dir = both]
+    nasa -> main [dir = both]
+    ncep -> main [dir = both] 
+    esmg -> main [dir = both]
+    access -> main [dir = both]
+    kiost -> main [dir = both]
+
+    // Connect the nodes
+    gfdl -> ncar [dir=both]
+    ncar -> fsu [dir=both]
+    fsu -> nasa [dir=both]
+    nasa -> ncep [dir=both]
+    ncep -> esmg [dir=both]
+    esmg -> access [dir=both]
+    access -> kiost [dir=both]
+    kiost -> gfdl [dir=both]
+
+    subgraph gfdl_users {
+        node [label = "user", fillcolor = "deepskyblue", width=0.5]
+        u1_gfdl -> gfdl
+        u2_gfdl -> gfdl
+    }
+
+    subgraph ncar_users {
+        node [label = "user", fillcolor = "mediumaquamarine", width=0.5]
+        u1_ncar -> ncar
+        u2_ncar -> ncar
+    }
+
+    subgraph fsu_users {
+        node [label = "user", fillcolor = "orange", width=0.5]
+        u2_fsu [style=invis]
+        u1_fsu -> fsu
+        u2_fsu -> fsu [style=invisible, arrowhead=none]
+    }
+
+    subgraph nasa_users {
+        u1_nasa [label = "user", fillcolor = "white", width=0.5]
+        u2_nasa [style=invis]
+        u1_nasa -> nasa
+        u2_nasa -> nasa [style=invisible, arrowhead=none]
+    }
+
+    subgraph ncep_users {
+        node [label = "user", fillcolor = "cornflowerblue", width=0.5]
+        note_ncep [label="GitHub\norganizations", shape=plaintext,
+            fillcolor=none, fontcolor=white, width=1.5]
+        u1_ncep -> ncep
+        note_ncep -> ncep
+    }
+
+    subgraph esmg_users {
+        u1_esmg [label = "user", fillcolor = "salmon", width=0.5]
+        u2_esmg [style=invis]
+        u1_esmg -> esmg
+        u2_esmg -> esmg [style=invisible, arrowhead=none]
+    }
+
+    subgraph access_users {
+        u1_access [label = "user", fillcolor = "gold", width=0.5]
+        u2_access [style=invis]
+        u1_access -> access [len=0.1]
+        u2_access -> access [style=invisible, arrowhead=none]
+    }
+
+    subgraph kiost_users {
+        u1_kiost [label = "user", fillcolor = "salmon", width=0.5]
+        u2_kiost [style=invis]
+        u1_kiost -> kiost
+        u2_kiost -> kiost [style=invisible, arrowhead=none]
+    }
+
+    forks [label="GitHub\nforks", shape=plaintext, fillcolor=none, 
+        fontcolor=white]
+    forks -> u1_gfdl
+    forks -> u1_ncar
+}

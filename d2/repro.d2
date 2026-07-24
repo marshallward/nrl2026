@@ -1,0 +1,29 @@
+style.fill: transparent
+
+repro: |text
+
+      MOM Time       0.000      0: En 9.113220E-12, MaxCFL  0.00000, Mass 5.289326887310E+18
+          Total Energy: 4186FC216CCDC25B  4.8202797600468360E+07
+          Total Mass:   5.2893268873103186E+18, Change:   0.0000000000000000E+00 Error:  0.00000E+00 ( 0.0E+00)
+      MOM Time      50.000     50: En 2.411415E-05, MaxCFL  0.00148, Mass 5.289326887310E+18
+          Total Energy: 42DD003FDC23154B  1.2754763438805317E+14
+          Total Mass:   5.2893268873103186E+18, Change:  -4.2356698535497571E+01 Error: -4.23567E+01 (-8.0E-18)
+      MOM Time     100.000    100: En 4.391675E-05, MaxCFL  0.00199, Mass 5.289326887310E+18
+          Total Energy: 42EA6887DCF0C4E6  2.3229006659741519E+14
+          Total Mass:   5.2893268873103186E+18, Change:   7.8416584052112057E+00 Error:  7.84166E+00 ( 1.5E-18)
+
+    |
+
+CPU.style.font-size: 32
+GPU.style.font-size: 32
+
+CPU -> repro: x86 {
+    style.stroke: white
+    style.stroke-width: 4
+    style.fill: lightsteelblue
+}
+GPU -> repro: PTX {
+    style.stroke: white
+    style.stroke-width: 4
+    style.fill: lightsteelblue
+}

@@ -1,0 +1,58 @@
+style.fill: transparent
+direction: right
+
+GPU1 {
+    near: center-left
+    style.font-color: white
+    style.fill: lightsteelblue
+    compute {
+        label: Compute domain
+        style.3d: true
+        shape: square
+    }
+    compute -> buffer
+}
+
+
+RAM1 {
+}
+
+RAM2 {
+}
+
+GPU2 {
+    near: center-right
+    style.font-color: white
+    style.fill: lightsteelblue
+    direction: up
+
+    compute {
+        label: Compute domain
+        style.3d: true
+        shape: square
+    }
+    buffer -> compute
+}
+
+GPU1.buffer -> GPU2.buffer: NVLink {
+    style.stroke: white
+    style.stroke-width: 6
+    style.font-color: white
+    style.animated: true
+}
+
+GPU1.buffer -> RAM1 {
+    style.stroke: white
+    style.font-color: white
+}
+
+RAM1 -> RAM2: Infiniband {
+    style.stroke: white
+    style.font-color: white
+    style.animated: true
+}
+
+RAM2 -> GPU2.buffer {
+    style.stroke: white
+    style.font-color: white
+}

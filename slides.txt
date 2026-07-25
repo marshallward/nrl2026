@@ -343,7 +343,8 @@ Dycore Breakdown
 FMS MPI Support
 ===============
 
-.. image:: img/fms_mpi.svg
+.. figure:: img/fms_mpi.svg
+   :width: 70%
 
 Message passing FMS buffers are on GPUs
 

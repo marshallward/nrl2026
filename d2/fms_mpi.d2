@@ -14,10 +14,13 @@ GPU1 {
 }
 
 
-RAM1 {
-}
+# RAM1 {
+# }
+# 
+# RAM2 {
+# }
 
-RAM2 {
+RAM {
 }
 
 GPU2 {
@@ -41,18 +44,20 @@ GPU1.buffer -> GPU2.buffer: NVLink {
     style.animated: true
 }
 
-GPU1.buffer -> RAM1 {
-    style.stroke: white
-    style.font-color: white
-}
-
-RAM1 -> RAM2: Infiniband {
+GPU1.buffer -> RAM: PCIe {
     style.stroke: white
     style.font-color: white
     style.animated: true
 }
 
-RAM2 -> GPU2.buffer {
+# RAM1 -> RAM2: PCIe {
+#     style.stroke: white
+#     style.font-color: white
+#     style.animated: true
+# }
+
+RAM-> GPU2.buffer: PCIe {
     style.stroke: white
     style.font-color: white
+    style.animated: true
 }

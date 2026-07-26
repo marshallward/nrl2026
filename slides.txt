@@ -354,7 +354,15 @@ Message passing FMS buffers are on GPUs
 Dycore Scaling
 ==============
 
-.. image:: img/h100_dycore_scaling.svg
+.. image:: img/mpi_scaling.svg
+
+We are seeing scalability with GPU over MPI
+
+
+Dycore Efficiency
+-----------------
+
+.. image:: img/mpi_efficiency.svg
 
 We are seeing scalability with GPU over MPI
 
@@ -362,7 +370,13 @@ We are seeing scalability with GPU over MPI
 Module scaling
 ==============
 
-.. image:: img/mpi_scaling.svg
+.. image:: img/mpi_scaling_per_module.svg
+
+
+Module efficiency
+-----------------
+
+.. image:: img/mpi_efficiency_per_module.svg
 
 
 Viable Solution?

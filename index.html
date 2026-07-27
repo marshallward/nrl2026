@@ -106,47 +106,60 @@ tasks. This creates several constraints.</p>
 <p>Separate solver into units of work (i.e. kernels)</p>
 </section>
 
-<section id="diverse-kernels" class="title-slide slide level1">
-<h1>Diverse Kernels</h1>
+<section id="choose-your-kernel" class="title-slide slide level1">
+<h1>Choose your Kernel</h1>
 <p><img data-src="img/gengpu.svg" style="width:80.0%" alt="image" /></p>
 <p>Many ways to define kernels, each with pros and cons</p>
 </section>
 
 <section id="do-concurrent" class="title-slide slide level1">
-<h1><code>do concurrent</code>?</h1>
-<p>A language-standard loop to promote parallelization.</p>
-<p>Execution may occur in any order.</p>
-<pre class="fortran"><code>do concurrent (k=1:nk, j=1:nj, i=1:ni)
-    a(i,j,k) = b(i,j,k) + c(i,j,k)
-enddo</code></pre>
-<p>Cannot use order-dependent operations:</p>
+<h1><code>do concurrent</code></h1>
+<p>Fortran language feature to promote loop parallelization. Execution
+may occur in any order:</p>
+<table>
+<colgroup>
+<col style="width: 48%" />
+<col />
+<col style="width: 51%" />
+</colgroup>
+<tbody>
+<tr>
+<td><pre class="fortran"><code>do j=1,nj ; do i=1,ni
+    a(i,j) = b(i,j) + c(i,j)
+enddo ; enddo</code></pre></td>
+<td>⇒</td>
+<td><pre class="fortran"><code>do concurrent (j=1:nj, i=1:ni)
+    a(i,j) = b(i,j) + c(i,j)
+enddo</code></pre></td>
+</tr>
+</tbody>
+</table>
+<p>Cannot depend on order or system state, e.g.</p>
 <ul>
 <li><code>a(i) = a(i-1) + 1</code></li>
 <li><code>sum = sum + a(i)</code></li>
 <li><code>print *, i</code></li>
 </ul>
-<p>But it's also a "contract" to be good (e.g. C's
-<code>restrict</code>)</p>
 </section>
 
+<section>
 <section id="nvidias-do-concurrent" class="title-slide slide level1">
 <h1>NVIDIA's <code>do concurrent</code></h1>
-<p><code>nvfortran</code> takes a "<code>do concurrent</code>" block</p>
+<p><code>nvfortran</code> accepts a "<code>do concurrent</code>"
+block</p>
 <pre class="fortran"><code>do concurrent (k=1:nz, j=js:je, I=Isq:Ieq)
   u_bc_accel(I,j,k) = CAu_pred(I,j,k) + PFu(I,j,k) + diffu(I,j,k)
 enddo</code></pre>
-<p>and converts it to an OpenACC kernel.</p>
+<p>and translates it to an OpenACC kernel.</p>
 <pre class="fortran"><code>!$acc parallel loop collapse(3) vector_length(128)
 do k=1,nz ; do j=js,je ; do I=Isq,Ieq
   u_bc_accel(I,j,k) = CAu_pred(I,j,k) + PFu(I,j,k) + diffu(I,j,k)
 enddo ; enddo ; enddo
 !$acc end parallel loop</code></pre>
-<p>CUDA threads-per-block (vector) is set to 128.</p>
+<p>CUDA threads per block (or gang) is set to 128.</p>
 </section>
-
-<section>
-<section id="nested-do-concurrent" class="title-slide slide level1">
-<h1>Nested <code>do concurrent</code></h1>
+<section id="nested-do-concurrent" class="slide level2">
+<h2>Nested <code>do concurrent</code></h2>
 <p>Nested <code>do concurrent</code> can launch with dynamic grid and
 block geometries.</p>
 <pre class="fortran"><code>do concurrent (j=jsh:jeh)

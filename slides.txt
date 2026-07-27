@@ -59,8 +59,8 @@ GPU Programming
 Separate solver into units of work (i.e. kernels)
 
 
-Diverse Kernels
-===============
+Choose your Kernel
+==================
 
 .. image:: img/gengpu.svg
    :width: 80%
@@ -68,12 +68,11 @@ Diverse Kernels
 Many ways to define kernels, each with pros and cons
 
 
-``do concurrent``?
-==================
+``do concurrent``
+=================
 
-A language-standard loop to promote parallelization.
-
-Execution may occur in any order.
+Fortran language feature to promote loop parallelization.  Execution may occur
+in any order:
 
 .. "The execution order of the iterations can be left indeterminate..."
 
@@ -81,21 +80,30 @@ Execution may occur in any order.
    combination of the index-name values.  Each execution of the block is an
    iteration. The executions may occur in any order.
 
-.. code:: fortran
+.. list-table::
+   :widths: 48 1em 50
 
-   do concurrent (k=1:nk, j=1:nj, i=1:ni)
-       a(i,j,k) = b(i,j,k) + c(i,j,k)
-   enddo
+   * - .. code:: fortran
 
-Cannot use order-dependent operations:
+          do j=1,nj ; do i=1,ni
+              a(i,j) = b(i,j) + c(i,j)
+          enddo ; enddo
+
+     - ⇒
+
+     - .. code:: fortran
+
+          do concurrent (j=1:nj, i=1:ni)
+              a(i,j) = b(i,j) + c(i,j)
+          enddo
+
+Cannot depend on order or system state, e.g.
 
 * ``a(i) = a(i-1) + 1``
 
 * ``sum = sum + a(i)``
 
 * ``print *, i``
-
-But it's also a "contract" to be good (e.g. C's ``restrict``)
 
 
 .. ``do concurrent`` kernel
@@ -129,7 +137,7 @@ But it's also a "contract" to be good (e.g. C's ``restrict``)
 NVIDIA's ``do concurrent``
 ==========================
 
-``nvfortran`` takes a "``do concurrent``" block
+``nvfortran`` accepts a "``do concurrent``" block
 
 .. code:: fortran
 
@@ -137,7 +145,7 @@ NVIDIA's ``do concurrent``
      u_bc_accel(I,j,k) = CAu_pred(I,j,k) + PFu(I,j,k) + diffu(I,j,k)
    enddo
 
-and converts it to an OpenACC kernel.
+and translates it to an OpenACC kernel.
 
 .. code:: fortran
 
@@ -147,11 +155,15 @@ and converts it to an OpenACC kernel.
    enddo ; enddo ; enddo
    !$acc end parallel loop
 
-CUDA threads-per-block (vector) is set to 128.
+CUDA threads per block (or gang) is set to 128.
+
+.. vector length is likely compiler or hardware-dependent
 
 
 Nested ``do concurrent``
-========================
+------------------------
+
+.. this probably goes later, if at all
 
 Nested ``do concurrent`` can launch with dynamic grid and block geometries.
 
@@ -173,6 +185,8 @@ For a 256 × 256 × 100 domain:
 
 A second example
 ----------------
+
+.. This is probably far too abstract
 
 256 × 256 × 100 kernel geometry is (9,64,1) × (32,4,1)
 

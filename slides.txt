@@ -134,6 +134,18 @@ Cannot depend on order or system state, e.g.
       enddo
 
 
+Why ``do concurrent``?
+======================
+
+TODO
+
+* Platform independent
+
+* Preserve codebase
+
+* Strong coding model?
+
+
 NVIDIA's ``do concurrent``
 ==========================
 
@@ -210,6 +222,12 @@ A second example
     nj = 64*4 = 256
 
     ni = 9*32 = 288 <- 257 rounded up to next 32-step
+
+
+What Happens
+============
+
+TODO: Diagram of array, thread block, SMs etc
 
 
 Memory Management

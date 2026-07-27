@@ -224,10 +224,13 @@ A second example
     ni = 9*32 = 288 <- 257 rounded up to next 32-step
 
 
-What Happens
-============
+Kernel Dispatch
+===============
 
-TODO: Diagram of array, thread block, SMs etc
+.. image:: img/do_concurrent.svg
+   :width: 60%
+
+GPU distributes gangs over SMs
 
 
 Memory Management

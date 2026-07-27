@@ -1,0 +1,132 @@
+style.fill: transparent
+
+grid-rows: 2
+grid-columns: 1
+grid-gap: 20
+
+host: "" {
+    label: ""
+    style.fill: lightsteelblue
+ 
+    array: {
+        label: ""
+        #label: "do concurrent (i=1,14)"
+        #style.font-size: 14
+        #style.font: mono
+        style.fill: transparent
+        style.stroke: transparent
+        grid-columns: 14
+        grid-gap: 0
+        #style.fill: "#e8e8e8"
+        
+        *.style.fill: "#c8d8e8"
+        *.label: ""
+        *.width: 16
+        *.height: 16
+        
+        e1; e2; e3; e4; e5; e6; e7; e8; e9; e10; e11; e12; e13; e14
+    }
+}
+
+
+device: "" {
+    label: ""
+    style.font-color: white
+    style.fill: lightsteelblue
+    
+    grid-rows: 2
+    grid-gap: 8
+    
+    chunks: {
+        label: ""
+        style.fill: transparent
+        style.stroke: transparent
+        grid-columns: 5
+        grid-rows: 1
+        grid-gap: 0
+        
+        *.label: ""
+        *.grid-columns: 3
+        *.grid-rows: 1
+        *.grid-gap: 0
+        
+        c1: {
+            style.fill: "#e74c3c"
+            t1: "" { style.fill: "#f1948a"; width: 16; height: 16 }
+            t2: "" { style.fill: "#f1948a"; width: 16; height: 16 }
+            t3: "" { style.fill: "#f1948a"; width: 16; height: 16 }
+        }
+        c2: {
+            style.fill: "#3498db"
+            t1: "" { style.fill: "#85c1e9"; width: 16; height: 16 }
+            t2: "" { style.fill: "#85c1e9"; width: 16; height: 16 }
+            t3: "" { style.fill: "#85c1e9"; width: 16; height: 16 }
+        }
+        c3: {
+            style.fill: "#2ecc71"
+            t1: "" { style.fill: "#82e0aa"; width: 16; height: 16 }
+            t2: "" { style.fill: "#82e0aa"; width: 16; height: 16 }
+            t3: "" { style.fill: "#82e0aa"; width: 16; height: 16 }
+        }
+        c4: {
+            style.fill: "#9b59b6"
+            t1: "" { style.fill: "#d2b4de"; width: 16; height: 16 }
+            t2: "" { style.fill: "#d2b4de"; width: 16; height: 16 }
+            t3: "" { style.fill: "#d2b4de"; width: 16; height: 16 }
+        }
+        c5: {
+            style.fill: "#f39c12"
+            t1: "" { style.fill: "#f9e79f"; width: 16; height: 16 }
+            t2: "" { style.fill: "#f9e79f"; width: 16; height: 16 }
+        }
+    }
+
+    sms: {
+        label: ""
+        style.fill: transparent
+        style.stroke: transparent
+
+        *.width: 80
+        *.height: 80
+
+        grid-columns: 3
+        grid-gap: 16
+        
+        sm1: SM 0 {
+            style.fill: "#4a90d9"
+        }
+        sm2: SM 1 {
+            style.fill: "#5cb85c"
+        }
+        sm3: SM 2 {
+            style.fill: "#f0ad4e"
+        }
+    }
+}
+
+#host.array -> device.chunks: "allocate()" {
+#    style.font: mono
+#    #style.stroke: white
+#    #style.font-color: white
+#}
+
+device.chunks.c1 -> device.sms.sm1 {
+    style.stroke: "#4a90d9"
+    style.stroke-width: 2
+}
+device.chunks.c2 -> device.sms.sm1 {
+    style.stroke: "#4a90d9"
+    style.stroke-width: 2
+}
+device.chunks.c3 -> device.sms.sm2 {
+    style.stroke: "#5cb85c"
+    style.stroke-width: 2
+}
+device.chunks.c4 -> device.sms.sm2 {
+    style.stroke: "#5cb85c"
+    style.stroke-width: 2
+}
+device.chunks.c5 -> device.sms.sm3 {
+    style.stroke: "#f0ad4e"
+    style.stroke-width: 2
+}

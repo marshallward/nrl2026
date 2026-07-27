@@ -41,8 +41,8 @@
     </header>
 
     <footer style="font-size: 1pc; position: absolute; bottom: 2%; left: 2%;">
-      <code><a
-href="https://marshallward.org/nrl2026.html">https://marshallward.org/nrl2026.html</a></code>
+      <code><p><a
+href="https://marshallward.org/nrl2026.html">https://marshallward.org/nrl2026.html</a></p></code>
     </footer>
 
     <div class="slides">
@@ -62,12 +62,12 @@ href="https://marshallward.org/nrl2026.html">https://marshallward.org/nrl2026.ht
 <li>Jorge Galvez Vallejo</li>
 </ul></p>
   <!-- org has a <p> for some reason... so use <div> -->
-  <div class="organization" style="text-align: right;">... and the MOM6
-consortium</div>
+  <div class="organization" style="text-align: right;"><p>... and the
+MOM6 consortium</p></div>
   <p class="date" style="text-align: right;">2027-07-30</p>
   <!-- Currently cannot add notes to a title slide, so have to do manually-->
   <aside class="notes">
-    Progress update of MOM6 porting to GPUs
+    <p>Progress update of MOM6 porting to GPUs</p>
   </aside>
 </section>
 
@@ -142,6 +142,16 @@ enddo</code></pre></td>
 </ul>
 </section>
 
+<section id="why-do-concurrent" class="title-slide slide level1">
+<h1>Why <code>do concurrent</code>?</h1>
+<p>TODO</p>
+<ul>
+<li>Platform independent</li>
+<li>Preserve codebase</li>
+<li>Strong coding model?</li>
+</ul>
+</section>
+
 <section>
 <section id="nvidias-do-concurrent" class="title-slide slide level1">
 <h1>NVIDIA's <code>do concurrent</code></h1>
@@ -195,6 +205,11 @@ enddo</code></pre>
 <p>ni = 9*32 = 288 &lt;- 257 rounded up to next 32-step</p>
 </blockquote>
 </section></section>
+<section id="what-happens" class="title-slide slide level1">
+<h1>What Happens</h1>
+<p>TODO: Diagram of array, thread block, SMs etc</p>
+</section>
+
 <section id="memory-management" class="title-slide slide level1">
 <h1>Memory Management</h1>
 <p>Move memory to device</p>

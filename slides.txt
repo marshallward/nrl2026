@@ -21,8 +21,18 @@ GPU technology
 .. figure:: img/dgemm_vs_daxpy.svg
 
 
-Our Challenge
-=============
+Goals
+=====
+
+* Can we preserve the Fortran codebase?
+
+* Will results be bit-reproducible?
+
+* Can we retain CPU performance
+
+
+Challenges
+----------
 
 MOM6 is a community code used in ongoing research and operational tasks.  This
 creates several constraints.
@@ -97,7 +107,7 @@ in any order:
               a(i,j) = b(i,j) + c(i,j)
           enddo
 
-Cannot depend on order or system state, e.g.
+Results cannot depend on loop order or system state:
 
 * ``a(i) = a(i-1) + 1``
 
@@ -137,13 +147,16 @@ Cannot depend on order or system state, e.g.
 Why ``do concurrent``?
 ======================
 
-TODO
+Single Codebase
+   Can generate serial, threaded, or GPU bytecode
 
-* Platform independent
+Platform Independence
+   Compilers can target their respective platforms: NVIDA to CUDA, AMD to ROCm,
+   ...
+   
+Algorithmic Precision
+   Loop independence lets compilers make better optimization choices.
 
-* Preserve codebase
-
-* Strong coding model?
 
 
 NVIDIA's ``do concurrent``
@@ -275,37 +288,6 @@ Strategy
   * OpenMP / OpenACC where we must
 
 
-..  The Team
-    ========
-
-    .. list-table::
-       :widths: 50 50
-
-       * - .. image:: img/ed.png
-              :height: 140
-
-           | Ed Yang
-           | (ACCESS-NRI)
-
-           .. image:: img/utheri.jpg
-              :height: 140
-
-           | Utheri Wagura
-           | (NOAA-GFDL)
-
-         - .. image:: img/jorge.png
-              :height: 140
-
-           | Jorge Galvez Vallejo
-           | (NCI Australia)
-
-           .. image:: img/marshall.png
-              :height: 140
-
-           | Marshall Ward
-           | (NOAA-GFDL)
-
-
 Double Gyre Test
 ================
 
@@ -314,13 +296,11 @@ Double Gyre Test
 
    * - .. image:: img/gyre.png
 
-     - * Simple layered dynamics
+     - * Simple layer dynamics
 
-       * Base domain: 32 × 32 grids, 100 layers
+       * Base domain: 32 × 32 points, 100 layers
 
-       * Weak scaling tests in multiples of grid
-
-CPU is 96-core Zen 4 (Genoa), GPU is H100
+       * Dynamical core is dominant
 
 
 Dycore Performance
@@ -414,18 +394,35 @@ Module efficiency
 .. image:: img/mpi_efficiency_per_module.svg
 
 
-Viable Solution?
-================
+Blocking
+========
 
-* **Simple syntax**: Easy to write and maintain
+.. list-table::
 
-* **Standard Fortran**: If it breaks, they must fix!
+   * - .. image:: img/jblock.svg
 
-* Single codebase for CPU and GPU
+       CPU cache blocks
 
-* Possible "smart" block geometry
+     - .. image:: img/gpu.svg
 
-But there are limitations
+       GPU block
+
+Wrapping solvers in "block loops" permit platform-specific cacheing
+
+
+..
+  Viable Solution?
+  ================
+  
+  * **Simple syntax**: Easy to write and maintain
+  
+  * **Standard Fortran**: If it breaks, they must fix!
+  
+  * Single codebase for CPU and GPU
+  
+  * Possible "smart" block geometry
+  
+  But there are limitations
 
 .. - Disadvantages
 
@@ -517,39 +514,8 @@ Dynamic object-oriented constructs are volatile
 But this is not a problem unique to Fortran.
 
 
-Function Inlining
-=================
-
-Kernel performance depends on inline of GPU functions
-
-.. code:: fortran
-
-   do concurrent (k=1:nz)
-      do concurrent (J=Jsq-1:Jeq+1, I=Isq-1:Ieq+1)
-        dvdx(I,J) = (v(i+1,J,k)*G%dyCv(i+1,J)) - (v(i,J,k)*G%dyCv(i,J))
-        dudy(I,J) = (u(I,j+1,k)*G%dxCu(I,j+1)) - (u(I,j,k)*G%dxCu(I,j))
-      enddo
-
-      ! Derived types: OBC, G, GV, US, CS
-      call gradKE(u, v, h, KE, KEx, KEy, k, OBC, G, GV, US, CS)
-
-      ! ...
-   enddo
-
-But function calls do not inline if they pass derived types
-
-
-Team parallelization
-====================
-
-.. image:: img/coradcalc_teams.svg
-
-Functions with derived type input do not inline.  Removing these arguments
-improves performance.
-
-
-Async kernels?
-==============
+Async kernels
+=============
 
 .. image:: img/async1.png
 
@@ -567,16 +533,30 @@ Async speedup
 .. image:: img/async_speedup.png
 
 
-Switch to OpenACC?
-==================
+..
+  Switch to OpenACC?
+  ==================
+  
+  OpenMP was chosen for portability, but there are occasional issues.
+  
+  * "``!$omp target``" and "``do concurrent``" can clash
+  
+  * No ``"worker"`` abstraction prevents 2D thread geometries.
+  
+  * Missing features like ``async``  (``nowait``)
 
-OpenMP was chosen for portability, but there are occasional issues.
 
-* "``!$omp target``" and "``do concurrent``" can clash
+Summary
+=======
 
-* No ``"worker"`` abstraction prevents 2D thread geometries.
+Can we preserve codebase?
+   Yes! ``do concurrent`` with OpenMP is a viable model
 
-* Missing features like ``async``  (``nowait``)
+Bit reproducible?
+   Yes!  Operational work can continue
+
+Retain CPU performance?
+   Yes! And with GPU speedups
 
 
 Fortran on the GPU
@@ -591,16 +571,16 @@ Fortran on the GPU
 MOM6 can run on GPUs using standard Fortran constructs.  We expect further
 improvements as we gain proficiency with the algorithms and technology.
 
-
-Upcoming challenges
--------------------
-
-* The next milestone (``benchmark``) touches many of the above issues.
-
-* We cannot write diagnostics!  MOM6 has a complex diagnostic manager which
-  will require complex design decisions.
-
-* The ultimate goal is GFDL's OM5 configuration.
-
-  * By this point, each respective group could be working on their own
-    configuration of interest!
+..
+  Upcoming challenges
+  -------------------
+  
+  * The next milestone (``benchmark``) touches many of the above issues.
+  
+  * We cannot write diagnostics!  MOM6 has a complex diagnostic manager which
+    will require complex design decisions.
+  
+  * The ultimate goal is GFDL's OM5 configuration.
+  
+    * By this point, each respective group could be working on their own
+      configuration of interest!

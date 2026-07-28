@@ -41,8 +41,8 @@
     </header>
 
     <footer style="font-size: 1pc; position: absolute; bottom: 2%; left: 2%;">
-      <code><p><a
-href="https://marshallward.org/nrl2026.html">https://marshallward.org/nrl2026.html</a></p></code>
+      <code><a
+href="https://marshallward.org/nrl2026.html">https://marshallward.org/nrl2026.html</a></code>
     </footer>
 
     <div class="slides">
@@ -62,12 +62,12 @@ href="https://marshallward.org/nrl2026.html">https://marshallward.org/nrl2026.ht
 <li>Jorge Galvez Vallejo</li>
 </ul></p>
   <!-- org has a <p> for some reason... so use <div> -->
-  <div class="organization" style="text-align: right;"><p>... and the
-MOM6 consortium</p></div>
+  <div class="organization" style="text-align: right;">... and the MOM6
+consortium</div>
   <p class="date" style="text-align: right;">2027-07-30</p>
   <!-- Currently cannot add notes to a title slide, so have to do manually-->
   <aside class="notes">
-    <p>Progress update of MOM6 porting to GPUs</p>
+    Progress update of MOM6 porting to GPUs
   </aside>
 </section>
 
@@ -79,8 +79,16 @@ MOM6 consortium</p></div>
 </section>
 
 <section>
-<section id="our-challenge" class="title-slide slide level1">
-<h1>Our Challenge</h1>
+<section id="goals" class="title-slide slide level1">
+<h1>Goals</h1>
+<ul>
+<li>Can we preserve the Fortran codebase?</li>
+<li>Will results be bit-reproducible?</li>
+<li>Can we retain CPU performance</li>
+</ul>
+</section>
+<section id="challenges" class="slide level2">
+<h2>Challenges</h2>
 <p>MOM6 is a community code used in ongoing research and operational
 tasks. This creates several constraints.</p>
 <ul>
@@ -134,7 +142,7 @@ enddo</code></pre></td>
 </tr>
 </tbody>
 </table>
-<p>Cannot depend on order or system state, e.g.</p>
+<p>Results cannot depend on loop order or system state:</p>
 <ul>
 <li><code>a(i) = a(i-1) + 1</code></li>
 <li><code>sum = sum + a(i)</code></li>
@@ -144,12 +152,22 @@ enddo</code></pre></td>
 
 <section id="why-do-concurrent" class="title-slide slide level1">
 <h1>Why <code>do concurrent</code>?</h1>
-<p>TODO</p>
-<ul>
-<li>Platform independent</li>
-<li>Preserve codebase</li>
-<li>Strong coding model?</li>
-</ul>
+<dl>
+<dt>Single Codebase</dt>
+<dd>
+<p>Can generate serial, threaded, or GPU bytecode</p>
+</dd>
+<dt>Platform Independence</dt>
+<dd>
+<p>Compilers can target their respective platforms: NVIDA to CUDA, AMD
+to ROCm, ...</p>
+</dd>
+<dt>Algorithmic Precision</dt>
+<dd>
+<p>Loop independence lets compilers make better optimization
+choices.</p>
+</dd>
+</dl>
 </section>
 
 <section>
@@ -254,14 +272,13 @@ enddo</code></pre>
 <tr>
 <td><img data-src="img/gyre.png" alt="image" /></td>
 <td><ul>
-<li>Simple layered dynamics</li>
-<li>Base domain: 32 × 32 grids, 100 layers</li>
-<li>Weak scaling tests in multiples of grid</li>
+<li>Simple layer dynamics</li>
+<li>Base domain: 32 × 32 points, 100 layers</li>
+<li>Dynamical core is dominant</li>
 </ul></td>
 </tr>
 </tbody>
 </table>
-<p>CPU is 96-core Zen 4 (Genoa), GPU is H100</p>
 </section>
 
 <section id="dycore-performance" class="title-slide slide level1">
@@ -311,15 +328,20 @@ alt="img/fms_mpi.svg" />
 <h2>Module efficiency</h2>
 <p><img data-src="img/mpi_efficiency_per_module.svg" alt="image" /></p>
 </section></section>
-<section id="viable-solution" class="title-slide slide level1">
-<h1>Viable Solution?</h1>
-<ul>
-<li><strong>Simple syntax</strong>: Easy to write and maintain</li>
-<li><strong>Standard Fortran</strong>: If it breaks, they must fix!</li>
-<li>Single codebase for CPU and GPU</li>
-<li>Possible "smart" block geometry</li>
-</ul>
-<p>But there are limitations</p>
+<section id="blocking" class="title-slide slide level1">
+<h1>Blocking</h1>
+<table>
+<tbody>
+<tr>
+<td><p><img data-src="img/jblock.svg" alt="image" /></p>
+<p>CPU cache blocks</p></td>
+<td><p><img data-src="img/gpu.svg" alt="image" /></p>
+<p>GPU block</p></td>
+</tr>
+</tbody>
+</table>
+<p>Wrapping solvers in "block loops" permit platform-specific
+cacheing</p>
 </section>
 
 <section id="local-arrays" class="title-slide slide level1">
@@ -378,33 +400,9 @@ end function density_linear</code></pre>
 <p>But this is not a problem unique to Fortran.</p>
 </section>
 
-<section id="function-inlining" class="title-slide slide level1">
-<h1>Function Inlining</h1>
-<p>Kernel performance depends on inline of GPU functions</p>
-<pre class="fortran"><code>do concurrent (k=1:nz)
-   do concurrent (J=Jsq-1:Jeq+1, I=Isq-1:Ieq+1)
-     dvdx(I,J) = (v(i+1,J,k)*G%dyCv(i+1,J)) - (v(i,J,k)*G%dyCv(i,J))
-     dudy(I,J) = (u(I,j+1,k)*G%dxCu(I,j+1)) - (u(I,j,k)*G%dxCu(I,j))
-   enddo
-
-   ! Derived types: OBC, G, GV, US, CS
-   call gradKE(u, v, h, KE, KEx, KEy, k, OBC, G, GV, US, CS)
-
-   ! ...
-enddo</code></pre>
-<p>But function calls do not inline if they pass derived types</p>
-</section>
-
-<section id="team-parallelization" class="title-slide slide level1">
-<h1>Team parallelization</h1>
-<p><img data-src="img/coradcalc_teams.svg" alt="image" /></p>
-<p>Functions with derived type input do not inline. Removing these
-arguments improves performance.</p>
-</section>
-
 <section>
 <section id="async-kernels" class="title-slide slide level1">
-<h1>Async kernels?</h1>
+<h1>Async kernels</h1>
 <p><img data-src="img/async1.png" alt="image" /></p>
 <p><img data-src="img/async2.png" alt="image" /></p>
 <p>Using <code>async</code> allows kernel overhead of one kernel to
@@ -414,20 +412,6 @@ overlap with the work of another.</p>
 <h2>Async speedup</h2>
 <p><img data-src="img/async_speedup.png" alt="image" /></p>
 </section></section>
-<section id="switch-to-openacc" class="title-slide slide level1">
-<h1>Switch to OpenACC?</h1>
-<p>OpenMP was chosen for portability, but there are occasional
-issues.</p>
-<ul>
-<li>"<code>!$omp target</code>" and "<code>do concurrent</code>" can
-clash</li>
-<li>No <code>"worker"</code> abstraction prevents 2D thread
-geometries.</li>
-<li>Missing features like <code>async</code> (<code>nowait</code>)</li>
-</ul>
-</section>
-
-<section>
 <section id="fortran-on-the-gpu" class="title-slide slide level1">
 <h1>Fortran on the GPU</h1>
 <ul>
@@ -439,20 +423,6 @@ geometries.</li>
 further improvements as we gain proficiency with the algorithms and
 technology.</p>
 </section>
-<section id="upcoming-challenges" class="slide level2">
-<h2>Upcoming challenges</h2>
-<ul>
-<li>The next milestone (<code>benchmark</code>) touches many of the
-above issues.</li>
-<li>We cannot write diagnostics! MOM6 has a complex diagnostic manager
-which will require complex design decisions.</li>
-<li>The ultimate goal is GFDL's OM5 configuration.
-<ul>
-<li>By this point, each respective group could be working on their own
-configuration of interest!</li>
-</ul></li>
-</ul>
-</section></section>
     </div>
   </div>
 

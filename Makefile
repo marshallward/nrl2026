@@ -14,9 +14,12 @@ FLAGS=-s \
 D2FILES=$(wildcard d2/*.d2)
 D2FIGURES=$(patsubst %.d2,%.svg,$(subst d2/,img/,$(D2FILES)))
 
+ASYFILES=$(wildcard asy/*.asy)
+ASYFIGURES=$(patsubst %.asy,%.svg,$(subst asy/,img/,$(ASYFILES)))
+
 SOURCE=$(wildcard src/*.F90)
 
-all: index.html reveal.js $(DOTFIGURES) $(D2FIGURES)
+all: index.html reveal.js $(DOTFIGURES) $(D2FIGURES) $(ASYFIGURES)
 
 reveal.js:
 	wget -N ${REPO}
@@ -35,7 +38,10 @@ index.html : slides.txt gfdl.revealjs reveal.js/css/theme/gfdl.css $(DOTFIGURES)
 	sed -i 's/<video /<video autoplay loop /g' $@
 
 img/%.svg: d2/%.d2
-	d2 $^ $@ --pad 2
+	d2 $< $@ --pad 2
+
+img/%.svg: asy/%.asy
+	asy -f svg $< -o $(basename $@)
 
 img/fixedprec.svg: dot/fixedprec.dot
 	dot -Tsvg:cairo $^ > $@

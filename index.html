@@ -335,7 +335,7 @@ alt="img/fms_mpi.svg" />
 <tr>
 <td><p><img data-src="img/jblock.svg" alt="image" /></p>
 <p>CPU cache blocks</p></td>
-<td><p><img data-src="img/gpu.svg" alt="image" /></p>
+<td><p><img data-src="img/gpublock.svg" alt="image" /></p>
 <p>GPU block</p></td>
 </tr>
 </tbody>
@@ -412,6 +412,24 @@ overlap with the work of another.</p>
 <h2>Async speedup</h2>
 <p><img data-src="img/async_speedup.png" alt="image" /></p>
 </section></section>
+<section id="summary" class="title-slide slide level1">
+<h1>Summary</h1>
+<dl>
+<dt>Can we preserve codebase?</dt>
+<dd>
+<p>Yes! <code>do concurrent</code> with OpenMP is a viable model</p>
+</dd>
+<dt>Bit reproducible?</dt>
+<dd>
+<p>Yes! Operational work can continue</p>
+</dd>
+<dt>Retain CPU performance?</dt>
+<dd>
+<p>Yes! And with GPU speedups</p>
+</dd>
+</dl>
+</section>
+
 <section id="fortran-on-the-gpu" class="title-slide slide level1">
 <h1>Fortran on the GPU</h1>
 <ul>

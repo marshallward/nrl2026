@@ -403,7 +403,7 @@ Blocking
 
        CPU cache blocks
 
-     - .. image:: img/gpu.svg
+     - .. image:: img/gpublock.svg
 
        GPU block
 

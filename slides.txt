@@ -24,6 +24,8 @@ GPU technology
 Goals
 =====
 
+* Can the solvers be ported?
+
 * Can we preserve the Fortran codebase?
 
 * Will results be bit-reproducible?
@@ -408,6 +410,12 @@ Blocking
        GPU block
 
 Wrapping solvers in "block loops" permit platform-specific cacheing
+
+
+Block Performance
+=================
+
+.. image:: img/corad_blocks.svg
 
 
 ..

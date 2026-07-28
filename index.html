@@ -41,8 +41,8 @@
     </header>
 
     <footer style="font-size: 1pc; position: absolute; bottom: 2%; left: 2%;">
-      <code><a
-href="https://marshallward.org/nrl2026.html">https://marshallward.org/nrl2026.html</a></code>
+      <code><p><a
+href="https://marshallward.org/nrl2026.html">https://marshallward.org/nrl2026.html</a></p></code>
     </footer>
 
     <div class="slides">
@@ -62,12 +62,12 @@ href="https://marshallward.org/nrl2026.html">https://marshallward.org/nrl2026.ht
 <li>Jorge Galvez Vallejo</li>
 </ul></p>
   <!-- org has a <p> for some reason... so use <div> -->
-  <div class="organization" style="text-align: right;">... and the MOM6
-consortium</div>
+  <div class="organization" style="text-align: right;"><p>... and the
+MOM6 consortium</p></div>
   <p class="date" style="text-align: right;">2027-07-30</p>
   <!-- Currently cannot add notes to a title slide, so have to do manually-->
   <aside class="notes">
-    Progress update of MOM6 porting to GPUs
+    <p>Progress update of MOM6 porting to GPUs</p>
   </aside>
 </section>
 
@@ -82,6 +82,7 @@ consortium</div>
 <section id="goals" class="title-slide slide level1">
 <h1>Goals</h1>
 <ul>
+<li>Can the solvers be ported?</li>
 <li>Can we preserve the Fortran codebase?</li>
 <li>Will results be bit-reproducible?</li>
 <li>Can we retain CPU performance</li>
@@ -342,6 +343,11 @@ alt="img/fms_mpi.svg" />
 </table>
 <p>Wrapping solvers in "block loops" permit platform-specific
 cacheing</p>
+</section>
+
+<section id="block-performance" class="title-slide slide level1">
+<h1>Block Performance</h1>
+<p><img data-src="img/corad_blocks.svg" alt="image" /></p>
 </section>
 
 <section id="local-arrays" class="title-slide slide level1">

@@ -378,13 +378,19 @@ Blocking
 
 .. list-table::
 
-   * - .. image:: img/jblock.svg
+   * - .. image:: img/kblock.svg
 
-       CPU cache blocks
+       CPU Layered
 
+     - .. image:: img/jblock.svg
+          :width: 78%
+
+       CPU Columnar
+         
      - .. image:: img/gpublock.svg
+          :width: 90%   
 
-       GPU block
+       GPU
 
 Configurable "block loops" optimize for each platform
 

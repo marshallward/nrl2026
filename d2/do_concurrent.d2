@@ -1,13 +1,14 @@
 style.fill: transparent
 
-grid-rows: 2
-grid-columns: 1
-
 host: {
-    near: top-center
+    near: center-left
     label: ""
     style.fill: lightsteelblue
- 
+
+    cpu: {
+        label: "CPU"
+    }
+
     array: {
         label: ""
         #label: "do concurrent (i=1,14)"
@@ -15,14 +16,14 @@ host: {
         #style.font: mono
         style.fill: transparent
         style.stroke: transparent
-        grid-columns: 14
+        grid-rows: 14
         grid-gap: 0
         #style.fill: "#e8e8e8"
         
         *.style.fill: "#c8d8e8"
         *.label: ""
-        *.width: 16
-        *.height: 16
+        *.width: 24
+        *.height: 24
         
         e1; e2; e3; e4; e5; e6; e7; e8; e9; e10; e11; e12; e13;
     }
@@ -34,58 +35,66 @@ device: "" {
     style.font-color: white
     style.fill: lightsteelblue
     
-    grid-rows: 2
-    grid-gap: 8
-    
+    #grid-rows: 2
+    #grid-gap: 8
+
     chunks: {
         label: ""
         style.fill: transparent
         style.stroke: transparent
-        grid-columns: 5
-        grid-rows: 1
+        grid-rows: 5
+        grid-columns: 1
         grid-gap: 0
         
         *.label: ""
-        *.grid-columns: 3
-        *.grid-rows: 1
+        *.grid-rows: 3
+        *.grid-columns: 1
         *.grid-gap: 0
 
-        c0: {
-            style.fill: transparent
-            style.stroke: transparent
-            t1: "" { style.fill: transparent; style.stroke: transparent; width: 16; height: 16 }
-            t2: "" { style.fill: transparent; style.stroke: transparent; width: 16; height: 16 }
-            #t3: "" { style.fill: transparent; style.stroke: transparent; width: 16; height: 16 }
-        }
+        ## Filler element
+        ## TODO: Can I avoid this?
+        #c0: {
+        #    style.fill: transparent
+        #    style.stroke: transparent
+        #    t1: "" { style.fill: transparent; style.stroke: transparent; width: 24; height: 24 }
+        #    t2: "" { style.fill: transparent; style.stroke: transparent; width: 24; height: 24 }
+        #    t3: "" { style.fill: transparent; style.stroke: transparent; width: 24; height: 24 }
+        #    t4: "" { style.fill: transparent; style.stroke: transparent; width: 24; height: 24 }
+        #    t5: "" { style.fill: transparent; style.stroke: transparent; width: 24; height: 24 }
+        #    t6: "" { style.fill: transparent; style.stroke: transparent; width: 24; height: 24 }
+        #    t7: "" { style.fill: transparent; style.stroke: transparent; width: 24; height: 24 }
+        #    t8: "" { style.fill: transparent; style.stroke: transparent; width: 24; height: 24 }
+        #    t9: "" { style.fill: transparent; style.stroke: transparent; width: 24; height: 24 }
+        #}
         
         c1: {
             style.fill: "#e74c3c"
-            t1: "" { style.fill: "#f1948a"; width: 16; height: 16 }
-            t2: "" { style.fill: "#f1948a"; width: 16; height: 16 }
-            t3: "" { style.fill: "#f1948a"; width: 16; height: 16 }
+            t1: "" { style.fill: "#f1948a"; width: 24; height: 24 }
+            t2: "" { style.fill: "#f1948a"; width: 24; height: 24 }
+            t3: "" { style.fill: "#f1948a"; width: 24; height: 24 }
         }
         c2: {
             style.fill: "#3498db"
-            t1: "" { style.fill: "#85c1e9"; width: 16; height: 16 }
-            t2: "" { style.fill: "#85c1e9"; width: 16; height: 16 }
-            t3: "" { style.fill: "#85c1e9"; width: 16; height: 16 }
+            t1: "" { style.fill: "#85c1e9"; width: 24; height: 24 }
+            t2: "" { style.fill: "#85c1e9"; width: 24; height: 24 }
+            t3: "" { style.fill: "#85c1e9"; width: 24; height: 24 }
         }
         c3: {
             style.fill: "#2ecc71"
-            t1: "" { style.fill: "#82e0aa"; width: 16; height: 16 }
-            t2: "" { style.fill: "#82e0aa"; width: 16; height: 16 }
-            t3: "" { style.fill: "#82e0aa"; width: 16; height: 16 }
+            t1: "" { style.fill: "#82e0aa"; width: 24; height: 24 }
+            t2: "" { style.fill: "#82e0aa"; width: 24; height: 24 }
+            t3: "" { style.fill: "#82e0aa"; width: 24; height: 24 }
         }
         c4: {
             style.fill: "#9b59b6"
-            t1: "" { style.fill: "#d2b4de"; width: 16; height: 16 }
-            t2: "" { style.fill: "#d2b4de"; width: 16; height: 16 }
-            t3: "" { style.fill: "#d2b4de"; width: 16; height: 16 }
+            t1: "" { style.fill: "#d2b4de"; width: 24; height: 24 }
+            t2: "" { style.fill: "#d2b4de"; width: 24; height: 24 }
+            t3: "" { style.fill: "#d2b4de"; width: 24; height: 24 }
         }
         c5: {
             style.fill: "#f39c12"
-            t1: "" { style.fill: "#f9e79f"; width: 16; height: 16 }
-            #t2: "" { style.fill: "#f9e79f"; width: 16; height: 16 }
+            t1: "" { style.fill: "#f9e79f"; width: 24; height: 24 }
+            #t2: "" { style.fill: "#f9e79f"; width: 24; height: 24 }
         }
     }
 
@@ -97,17 +106,20 @@ device: "" {
         *.width: 80
         *.height: 80
 
-        grid-columns: 3
+        grid-rows: 5
         grid-gap: 16
         
-        sm1: SM 0 {
-            style.fill: "#4a90d9"
+        sm0: SM 0 {
+            style.fill: steelblue
         }
-        sm2: SM 1 {
-            style.fill: "#5cb85c"
+        sm1: SM 1 {
+            style.fill: mediumseagreen
         }
-        sm3: SM 2 {
-            style.fill: "#f0ad4e"
+        sm2: SM 2 {
+            style.fill: darkorange
+        }
+        sm3: SM 3 {
+            style.fill: indianred
         }
     }
 }
@@ -118,30 +130,30 @@ host.array <-> device.chunks: "" {
     #style.font-color: white
 }
 
-device.chunks.c1 -> device.sms.sm1 {
-    style.stroke: "#4a90d9"
+device.chunks.c1 -> device.sms.sm0 {
+    style.stroke: steelblue
     style.stroke-width: 2
 }
 
-device.chunks.c2 -> device.sms.sm1 {
-#device.chunks.c2 -> device.sms.sm2 {
-    style.stroke: "#4a90d9"
+device.chunks.c2 -> device.sms.sm0 {
+#device.chunks.c2 -> device.sms.sm1 {
+    style.stroke: steelblue
     #style.stroke: "#5cb85c"
     style.stroke-width: 2
 }
 
-device.chunks.c3 -> device.sms.sm2 {
-    style.stroke: "#5cb85c"
+device.chunks.c3 -> device.sms.sm1 {
+    style.stroke: mediumseagreen
     style.stroke-width: 2
 }
 
-device.chunks.c4 -> device.sms.sm2 {
-#device.chunks.c4 -> device.sms.sm3 {
-    style.stroke: "#5cb85c"
+device.chunks.c4 -> device.sms.sm1 {
+#device.chunks.c4 -> device.sms.sm2 {
+    style.stroke: mediumseagreen
     #style.stroke: "#f0ad4e"
     style.stroke-width: 2
 }
-device.chunks.c5 -> device.sms.sm3 {
-    style.stroke: "#f0ad4e"
+device.chunks.c5 -> device.sms.sm2 {
+    style.stroke: darkorange
     style.stroke-width: 2
 }

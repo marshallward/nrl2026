@@ -41,8 +41,8 @@
     </header>
 
     <footer style="font-size: 1pc; position: absolute; bottom: 2%; left: 2%;">
-      <code><p><a
-href="https://marshallward.org/nrl2026.html">https://marshallward.org/nrl2026.html</a></p></code>
+      <code><a
+href="https://marshallward.org/nrl2026.html">https://marshallward.org/nrl2026.html</a></code>
     </footer>
 
     <div class="slides">
@@ -62,12 +62,12 @@ href="https://marshallward.org/nrl2026.html">https://marshallward.org/nrl2026.ht
 <li>Jorge Galvez Vallejo</li>
 </ul></p>
   <!-- org has a <p> for some reason... so use <div> -->
-  <div class="organization" style="text-align: right;"><p>... and the
-MOM6 consortium</p></div>
+  <div class="organization" style="text-align: right;">... and the MOM6
+consortium</div>
   <p class="date" style="text-align: right;">2027-07-30</p>
   <!-- Currently cannot add notes to a title slide, so have to do manually-->
   <aside class="notes">
-    <p>Progress update of MOM6 porting to GPUs</p>
+    Progress update of MOM6 porting to GPUs
   </aside>
 </section>
 
@@ -160,32 +160,36 @@ enddo</code></pre></td>
 </dd>
 <dt>Platform Independence</dt>
 <dd>
-<p>Compilers can target their respective platforms: NVIDA to CUDA, AMD
-to ROCm, ...</p>
+<p>Compilers can target their respective platforms (NVIDIA ⇒ CUDA, AMD ⇒
+ROCm)</p>
 </dd>
 <dt>Algorithmic Precision</dt>
 <dd>
-<p>Loop independence lets compilers make better optimization
-choices.</p>
+<p>Compilers can make better optimization choices</p>
 </dd>
 </dl>
 </section>
 
-<section>
 <section id="nvidias-do-concurrent" class="title-slide slide level1">
 <h1>NVIDIA's <code>do concurrent</code></h1>
-<p><code>nvfortran</code> accepts a "<code>do concurrent</code>"
-block</p>
 <pre class="fortran"><code>do concurrent (k=1:nz, j=js:je, I=Isq:Ieq)
   u_bc_accel(I,j,k) = CAu_pred(I,j,k) + PFu(I,j,k) + diffu(I,j,k)
 enddo</code></pre>
-<p>and translates it to an OpenACC kernel.</p>
+<p>is translated into an OpenACC kernel</p>
 <pre class="fortran"><code>!$acc parallel loop collapse(3) vector_length(128)
 do k=1,nz ; do j=js,je ; do I=Isq,Ieq
   u_bc_accel(I,j,k) = CAu_pred(I,j,k) + PFu(I,j,k) + diffu(I,j,k)
 enddo ; enddo ; enddo
 !$acc end parallel loop</code></pre>
-<p>CUDA threads per block (or gang) is set to 128.</p>
+<p>CUDA threads per "gang" is set to 128.</p>
+</section>
+
+<section>
+<section id="kernel-dispatch" class="title-slide slide level1">
+<h1>Kernel Dispatch</h1>
+<p><img data-src="img/do_concurrent.svg" style="width:50.0%"
+alt="image" /></p>
+<p>GPU distributes teams across SM cores</p>
 </section>
 <section id="nested-do-concurrent" class="slide level2">
 <h2>Nested <code>do concurrent</code></h2>
@@ -215,22 +219,9 @@ enddo</code></pre>
     enddo
   enddo
 enddo</code></pre>
-<ul>
-<li>CPU cacheing prefers the inner <code>i</code>-loop</li>
-<li>GPU moves serial <code>k</code> inside, sets up blocks</li>
-</ul>
-<blockquote>
-<p>nj = 64*4 = 256</p>
-<p>ni = 9*32 = 288 &lt;- 257 rounded up to next 32-step</p>
-</blockquote>
+<p>Threads across <code>i</code>, serial reproducible sums in
+<code>k</code>, dispatched in blocks along <code>j</code>.</p>
 </section></section>
-<section id="kernel-dispatch" class="title-slide slide level1">
-<h1>Kernel Dispatch</h1>
-<p><img data-src="img/do_concurrent.svg" style="width:60.0%"
-alt="image" /></p>
-<p>GPU distributes gangs over SMs</p>
-</section>
-
 <section id="memory-management" class="title-slide slide level1">
 <h1>Memory Management</h1>
 <p>Move memory to device</p>
@@ -292,7 +283,6 @@ changes</p>
 <section id="bit-reproducibility" class="title-slide slide level1">
 <h1>Bit Reproducibility</h1>
 <p><img data-src="img/repro.svg" alt="image" /></p>
-<p>Research and operations can continue uninterrupted</p>
 </section>
 
 <section id="dycore-breakdown" class="title-slide slide level1">
@@ -352,7 +342,8 @@ cacheing</p>
 
 <section id="local-arrays" class="title-slide slide level1">
 <h1>Local arrays</h1>
-<p>No support yet for <code>local(array)</code>, but OpenMP works</p>
+<p>NVIDIA's <code>do concurrent</code> does not yet support local
+arrays</p>
 <pre class="fortran"><code>!$omp target teams loop collapse(2) private(c1)
 do j=js,je ; do i=is,ie ; if (mask(i,j) &gt; 0.) then
   b_denom_1 = h(i,j,1) + a(i,j,1)
@@ -372,6 +363,7 @@ do j=js,je ; do i=is,ie ; if (mask(i,j) &gt; 0.) then
     visc_rem(i,j,k) = visc_rem(i,j,k) + c1(k+1) * visc_rem(i,j,k+1)
   enddo
 endif ; enddo ; enddo</code></pre>
+<p>For now, OpenMP is a portable alternative.</p>
 </section>
 
 <section id="derived-types" class="title-slide slide level1">

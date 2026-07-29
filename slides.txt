@@ -153,18 +153,15 @@ Single Codebase
    Can generate serial, threaded, or GPU bytecode
 
 Platform Independence
-   Compilers can target their respective platforms: NVIDA to CUDA, AMD to ROCm,
-   ...
+   Compilers can target their respective platforms (NVIDIA ⇒ CUDA, AMD ⇒ ROCm)
    
 Algorithmic Precision
-   Loop independence lets compilers make better optimization choices.
+   Compilers can make better optimization choices
 
 
 
 NVIDIA's ``do concurrent``
 ==========================
-
-``nvfortran`` accepts a "``do concurrent``" block
 
 .. code:: fortran
 
@@ -172,7 +169,7 @@ NVIDIA's ``do concurrent``
      u_bc_accel(I,j,k) = CAu_pred(I,j,k) + PFu(I,j,k) + diffu(I,j,k)
    enddo
 
-and translates it to an OpenACC kernel.
+is translated into an OpenACC kernel
 
 .. code:: fortran
 
@@ -182,9 +179,18 @@ and translates it to an OpenACC kernel.
    enddo ; enddo ; enddo
    !$acc end parallel loop
 
-CUDA threads per block (or gang) is set to 128.
+CUDA threads per "gang" is set to 128.
 
-.. vector length is likely compiler or hardware-dependent
+.. vector length is compiler or hardware-dependent
+
+
+Kernel Dispatch
+===============
+
+.. image:: img/do_concurrent.svg
+   :width: 50%
+
+GPU distributes teams across SM cores
 
 
 Nested ``do concurrent``
@@ -228,24 +234,15 @@ A second example
      enddo
    enddo
 
-* CPU cacheing prefers the inner ``i``-loop
+Threads across ``i``, serial reproducible sums in ``k``, dispatched in blocks
+along ``j``.
 
-* GPU moves serial ``k`` inside, sets up blocks
-
-..  possible explanation
+.. 
+   possible explanation
 
     nj = 64*4 = 256
 
     ni = 9*32 = 288 <- 257 rounded up to next 32-step
-
-
-Kernel Dispatch
-===============
-
-.. image:: img/do_concurrent.svg
-   :width: 60%
-
-GPU distributes gangs over SMs
 
 
 Memory Management
@@ -318,8 +315,6 @@ Bit Reproducibility
 ===================
 
 .. image:: img/repro.svg
-
-Research and operations can continue uninterrupted
 
 .. *Except!* ``(a*b)+c`` *does not suppress FMAs*
 
@@ -446,7 +441,7 @@ Block Performance
 Local arrays
 ============
 
-No support yet for ``local(array)``, but OpenMP works
+NVIDIA's ``do concurrent`` does not yet support local arrays
 
 .. code:: fortran
 
@@ -469,6 +464,8 @@ No support yet for ``local(array)``, but OpenMP works
        visc_rem(i,j,k) = visc_rem(i,j,k) + c1(k+1) * visc_rem(i,j,k+1)
      enddo
    endif ; enddo ; enddo
+
+For now, OpenMP is a portable alternative.
 
 
 Derived Types

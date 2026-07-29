@@ -57,13 +57,10 @@ href="https://marshallward.org/nrl2026.html">https://marshallward.org/nrl2026.ht
   <h1 class="title">Porting MOM6 to GPUs</h1>
   <p class="author" style="text-align: right;"><ul>
 <li>Marshall Ward</li>
+<li>Edward Yang</li>
+<li>Jorge Gálvez Vallejo</li>
 <li>Utheri Wagura</li>
-<li>Ed Yang</li>
-<li>Jorge Galvez Vallejo</li>
 </ul></p>
-  <!-- org has a <p> for some reason... so use <div> -->
-  <div class="organization" style="text-align: right;">... and the MOM6
-consortium</div>
   <p class="date" style="text-align: right;">2027-07-30</p>
   <!-- Currently cannot add notes to a title slide, so have to do manually-->
   <aside class="notes">
@@ -81,17 +78,8 @@ alt="img/dgemm_vs_daxpy.svg" />
 </section>
 
 <section>
-<section id="goals" class="title-slide slide level1">
-<h1>Goals</h1>
-<ul>
-<li>Can the solvers be ported?</li>
-<li>Can we preserve the Fortran codebase?</li>
-<li>Will results be bit-reproducible?</li>
-<li>Can we retain CPU performance</li>
-</ul>
-</section>
-<section id="challenges" class="slide level2">
-<h2>Challenges</h2>
+<section id="challenges" class="title-slide slide level1">
+<h1>Challenges</h1>
 <p>MOM6 is a community code used in ongoing research and operational
 tasks. This creates several constraints.</p>
 <ul>
@@ -193,7 +181,7 @@ enddo ; enddo ; enddo
 <h1>Kernel Dispatch</h1>
 <p><img data-src="img/do_concurrent.svg" style="width:50.0%"
 alt="image" /></p>
-<p>GPU distributes teams across SM cores</p>
+<p>GPU distributes gangs across SM cores</p>
 </section>
 <section id="nested-do-concurrent" class="slide level2">
 <h2>Nested <code>do concurrent</code></h2>
@@ -226,16 +214,39 @@ enddo</code></pre>
 <p>Threads across <code>i</code>, serial reproducible sums in
 <code>k</code>, dispatched in blocks along <code>j</code>.</p>
 </section></section>
+<section id="data-transfer" class="title-slide slide level1">
+<h1>Data Transfer?</h1>
+<p><em>Fortran does not prescribe data movement!</em></p>
+<table>
+<tbody>
+<tr>
+<td>Managed</td>
+<td><code>allocate()</code> management</td>
+</tr>
+<tr>
+<td>Unified</td>
+<td>Automatic management of all memory</td>
+</tr>
+<tr>
+<td>Separate</td>
+<td>Explicit memory management</td>
+</tr>
+</tbody>
+</table>
+<p>For portability, we do <strong>manual</strong> and use
+<strong>OpenMP</strong></p>
+</section>
+
 <section id="memory-management" class="title-slide slide level1">
 <h1>Memory Management</h1>
 <p>Move memory to device</p>
-<pre class="fortran"><code>!$omp target enter data map(to: a, b) map(alloc: c)</code></pre>
+<pre class="fortran"><code>!$omp target enter data map(alloc: a) map(to: b, c)</code></pre>
 <p>Execute kernel</p>
 <pre class="fortran"><code>do concurrent (k=1:nk, j=1:nj, i=1:ni)
     a(i,j,k) = b(i,j,k) + c(i,j,k)
 enddo</code></pre>
 <p>Return result to host</p>
-<pre class="fortran"><code>!$omp target exit data map(from: c) map(delete: a, b)</code></pre>
+<pre class="fortran"><code>!$omp target exit data map(from: a) map(delete: b, c)</code></pre>
 </section>
 
 <section id="strategy" class="title-slide slide level1">
@@ -266,15 +277,16 @@ enddo</code></pre>
 </colgroup>
 <tbody>
 <tr>
-<td><img data-src="img/gyre.png" alt="image" /></td>
+<td><img data-src="img/gyre.png" style="width:80.0%" alt="image" /></td>
 <td><ul>
-<li>Simple layer dynamics</li>
-<li>Base domain: 32 × 32 points, 100 layers</li>
-<li>Dynamical core is dominant</li>
+<li>Layered dynamics</li>
+<li>32×32 points, 100 layers</li>
+<li>Runs dynamic core only</li>
 </ul></td>
 </tr>
 </tbody>
 </table>
+<p><img data-src="img/dycore_tree.svg" alt="image" /></p>
 </section>
 
 <section id="dycore-performance" class="title-slide slide level1">
@@ -291,6 +303,26 @@ enddo</code></pre>
 <section id="dycore-breakdown" class="title-slide slide level1">
 <h1>Dycore Breakdown</h1>
 <p><img data-src="img/genoa_vs_h100.svg" alt="image" /></p>
+</section>
+
+<section id="blocking" class="title-slide slide level1">
+<h1>Blocking</h1>
+<table>
+<tbody>
+<tr>
+<td><p><img data-src="img/jblock.svg" alt="image" /></p>
+<p>CPU cache blocks</p></td>
+<td><p><img data-src="img/gpublock.svg" alt="image" /></p>
+<p>GPU block</p></td>
+</tr>
+</tbody>
+</table>
+<p>Configurable "block loops" optimize for each platform</p>
+</section>
+
+<section id="block-performance" class="title-slide slide level1">
+<h1>Block Performance</h1>
+<p><img data-src="img/corad_blocks.svg" alt="image" /></p>
 </section>
 
 <section id="fms-mpi-support" class="title-slide slide level1">
@@ -322,31 +354,14 @@ alt="img/fms_mpi.svg" />
 <h2>Module efficiency</h2>
 <p><img data-src="img/mpi_efficiency_per_module.svg" alt="image" /></p>
 </section></section>
-<section id="blocking" class="title-slide slide level1">
-<h1>Blocking</h1>
-<table>
-<tbody>
-<tr>
-<td><p><img data-src="img/jblock.svg" alt="image" /></p>
-<p>CPU cache blocks</p></td>
-<td><p><img data-src="img/gpublock.svg" alt="image" /></p>
-<p>GPU block</p></td>
-</tr>
-</tbody>
-</table>
-<p>Wrapping solvers in "block loops" permit platform-specific
-cacheing</p>
-</section>
-
-<section id="block-performance" class="title-slide slide level1">
-<h1>Block Performance</h1>
-<p><img data-src="img/corad_blocks.svg" alt="image" /></p>
+<section id="benchmark-ale" class="title-slide slide level1">
+<h1>Benchmark ALE</h1>
+<p><img data-src="img/dycore_tree.svg" alt="image" /></p>
 </section>
 
 <section id="local-arrays" class="title-slide slide level1">
 <h1>Local arrays</h1>
-<p>NVIDIA's <code>do concurrent</code> does not yet support local
-arrays</p>
+<p>NVIDIA's <code>do concurrent</code> can't (yet) use local arrays</p>
 <pre class="fortran"><code>!$omp target teams loop collapse(2) private(c1)
 do j=js,je ; do i=is,ie ; if (mask(i,j) &gt; 0.) then
   b_denom_1 = h(i,j,1) + a(i,j,1)

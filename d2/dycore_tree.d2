@@ -1,0 +1,60 @@
+style.fill: transparent
+
+step_RK2: |latex
+    \color{white}
+    \frac{d \mathbf{u}}{dt}, \frac{dh}{dt}
+|
+
+step_RK2 -> continuity {
+    style.stroke: white
+}
+step_RK2 -> pressure {
+    style.stroke: white
+}
+step_RK2 -> btstep {
+    style.stroke: white
+}
+#step_RK2 -> vertvisc_coef
+step_RK2 -> horizontal_viscosity {
+    style.stroke: white
+}
+#step_RK2 -> vertvisc_remnant
+step_RK2 -> vertvisc {
+    style.stroke: white
+}
+step_RK2 -> CorAdCalc {
+    style.stroke: white
+}
+#step_RK2 -> btcalc
+
+continuity: |latex
+    \color{white}
+    \nabla \cdot h \mathbf{u}
+|
+
+pressure: |latex
+    \color{white}
+    \nabla p
+|
+
+
+btstep: |latex
+    \color{white}
+    \frac{d}{dt} \int h dz
+|
+ 
+horizontal_viscosity: |latex
+    \color{white}
+    \nu \nabla^2 \mathbf{u}
+|
+
+vertvisc: |latex
+    \color{white}
+    \mu \frac{\partial^2 \mathbf{u}}{\partial z^2}
+|
+
+CorAdCalc: |latex
+    \color{white}
+    \mathbf{u} \cdot \nabla \mathbf{u}
+        + f \hat{\mathbf{z}} \times \mathbf{u}
+|

@@ -74,8 +74,10 @@ consortium</div>
 <section id="gpu-technology" class="title-slide slide level1">
 <h1>GPU technology</h1>
 <figure>
-<img data-src="img/dgemm_vs_daxpy.svg" alt="img/dgemm_vs_daxpy.svg" />
+<img data-src="img/dgemm_vs_daxpy.svg" style="width:70.0%"
+alt="img/dgemm_vs_daxpy.svg" />
 </figure>
+<p>GPUs provide a potential 10x speedup</p>
 </section>
 
 <section>
@@ -172,14 +174,16 @@ ROCm)</p>
 
 <section id="nvidias-do-concurrent" class="title-slide slide level1">
 <h1>NVIDIA's <code>do concurrent</code></h1>
-<pre class="fortran"><code>do concurrent (k=1:nz, j=js:je, I=Isq:Ieq)
-  u_bc_accel(I,j,k) = CAu_pred(I,j,k) + PFu(I,j,k) + diffu(I,j,k)
+<pre class="fortran"><code>do concurrent (k=1:nz, j=js:je, i=is:ie)
+  a(i,j,k) = b(i,j,k) + c(i,j,k) + d(i,j,k)
 enddo</code></pre>
 <p>is translated into an OpenACC kernel</p>
 <pre class="fortran"><code>!$acc parallel loop collapse(3) vector_length(128)
-do k=1,nz ; do j=js,je ; do I=Isq,Ieq
-  u_bc_accel(I,j,k) = CAu_pred(I,j,k) + PFu(I,j,k) + diffu(I,j,k)
+
+do k=1,nz ; do j=js,je ; do I=is,ie
+  a(I,j,k) = b(i,j,k) + c(i,j,k) + d(i,j,k)
 enddo ; enddo ; enddo
+
 !$acc end parallel loop</code></pre>
 <p>CUDA threads per "gang" is set to 128.</p>
 </section>
@@ -276,8 +280,7 @@ enddo</code></pre>
 <section id="dycore-performance" class="title-slide slide level1">
 <h1>Dycore Performance</h1>
 <p><img data-src="img/genoa_vs_h100_dycore.svg" alt="image" /></p>
-<p>Performance is comparable to 96-core CPU with minimal code
-changes</p>
+<p>Dynamic core on GPU can outperform CPU by ~2-4x</p>
 </section>
 
 <section id="bit-reproducibility" class="title-slide slide level1">
@@ -395,7 +398,7 @@ endif ; enddo ; enddo</code></pre>
   density_elem_linear = this%Rho_T0_S0 + this%dRho_dT * T &amp;
       + this%dRho_dS * S + this%dRho_dp * p
 end function density_linear</code></pre>
-<p>But this is not a problem unique to Fortran.</p>
+<p>But this is not a problem unique to Fortran</p>
 </section>
 
 <section>

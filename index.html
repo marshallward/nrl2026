@@ -327,6 +327,7 @@ alt="image" /></p>
 <section id="block-performance" class="title-slide slide level1">
 <h1>Block Performance</h1>
 <p><img data-src="img/corad_blocks.svg" alt="image" /></p>
+<p>GPU speedups while preserving CPU performance</p>
 </section>
 
 <section id="fms-mpi-support" class="title-slide slide level1">
@@ -360,7 +361,7 @@ alt="img/fms_mpi.svg" />
 </section></section>
 <section id="benchmark-ale" class="title-slide slide level1">
 <h1>Benchmark ALE</h1>
-<p><img data-src="img/dycore_tree.svg" alt="image" /></p>
+<p><img data-src="img/mom6code.svg" alt="image" /></p>
 </section>
 
 <section id="local-arrays" class="title-slide slide level1">
@@ -437,29 +438,17 @@ overlap with the work of another.</p>
 <dl>
 <dt>Can we preserve codebase?</dt>
 <dd>
-<p>Yes! <code>do concurrent</code> with OpenMP is a viable model</p>
+<p>Yes! <code>do concurrent</code> with OpenMP is viable</p>
 </dd>
 <dt>Bit reproducible?</dt>
 <dd>
-<p>Yes! Operational work can continue</p>
+<p>Yes! CPU and GPU match on NVIDIA</p>
 </dd>
 <dt>Retain CPU performance?</dt>
 <dd>
 <p>Yes! And with GPU speedups</p>
 </dd>
 </dl>
-</section>
-
-<section id="fortran-on-the-gpu" class="title-slide slide level1">
-<h1>Fortran on the GPU</h1>
-<ul>
-<li>It's working. Numbers are competitive and still improving.</li>
-<li>Reproducible. Operational models can continue.</li>
-<li>Compilers are only getting better.</li>
-</ul>
-<p>MOM6 can run on GPUs using standard Fortran constructs. We expect
-further improvements as we gain proficiency with the algorithms and
-technology.</p>
 </section>
     </div>
   </div>

@@ -1,0 +1,194 @@
+style.fill: transparent
+
+step_mom: {
+    label: Model Timestep
+    style.fill: lightcoral
+}
+
+step_mom -> step_mom_dynamics {
+    style.stroke: black
+}
+step_mom -> step_mom_thermo {
+    style.stroke: black
+}
+step_mom -> ale_regridding_and_remapping {
+    style.stroke: black
+}
+step_mom -> step_mom_tracer_dyn {
+    style.stroke: black
+}
+step_mom -> calculate_diagnostic_fields {
+    style.stroke: black
+}
+
+# Dynamics
+
+step_mom_dynamics: {
+    label: Dynamics
+    style.fill: lightcoral
+}
+
+step_mom_dynamics -> dycore.step_mom_dyn_split_RK2 {
+    style.stroke: black
+}
+step_mom_dynamics -> calc_slope_functions {
+    style.stroke: black
+}
+step_mom_dynamics -> thickness_diffuse {
+    style.stroke: black
+}
+step_mom_dynamics -> set_viscous_BBL {
+    style.stroke: black
+}
+step_mom_dynamics -> mixedlayer_restrat {
+    style.stroke: black
+}
+
+
+# Dycore
+
+dycore: {
+  label: ""
+  style.fill: transparent
+  style.stroke: green
+  style.stroke-width: 3
+  style.border-radius: 999
+
+  step_mom_dyn_split_RK2: {
+      label: Dycore
+      style.fill: lightgreen
+  }
+}
+
+
+# Lateral mixing coefficients
+
+calc_slope_functions: {
+    label: Lateral Mixing
+    style.fill: lightcoral
+}
+
+thickness_diffuse: {
+    label: Layer Diffusion
+    style.fill: lightcoral
+}
+
+set_viscous_BBL: {
+    label: Bottom Drag
+    style.fill: lightgreen
+}
+
+mixedlayer_restrat: {
+    label: Mixed Layer
+    style.fill: lightcoral
+}
+
+
+calc_slope_functions -> calc_isoneutral_slopes {
+    style.stroke: black
+}
+#calc_slope_functions -> valc_visbeck_coeffs_old
+
+calc_isoneutral_slopes: {
+    label: Neutral Surfaces
+    style.fill: lightcoral
+}
+
+
+# Thermo
+
+step_mom_thermo: {
+    label: Thermodynamic Step
+    style.fill: lightcoral
+}
+
+step_mom_thermo -> diabatic {
+    style.stroke: black
+}
+diabatic -> epbl.energetic_pbl {
+    style.stroke: black
+}
+diabatic -> set_diffusivity {
+    style.stroke: black
+}
+#diabatic -> applyboundaryfluxesinout
+
+diabatic: {
+    label: Diabatic
+    style.fill: lightcoral
+}
+
+epbl: {
+  label: ""
+  style.fill: transparent
+  style.stroke: lightcoral
+  style.stroke-width: 3
+  style.border-radius: 999
+
+  energetic_pbl: {
+      label: ePBL
+      style.fill: lightcoral
+  }
+}
+
+set_diffusivity: {
+    label: Diffusivity
+    style.fill: lightcoral
+}
+
+set_diffusivity -> kappa_shear_vertex {
+    style.stroke: black
+}
+set_diffusivity -> full_convection {
+    style.stroke: black
+}
+
+kappa_shear_vertex: {
+    label: Kappa Shear
+    style.fill: lightcoral
+}
+
+full_convection: {
+    label: Convection
+    style.fill: lightcoral
+}
+
+
+# ALE
+
+ale_regridding_and_remapping: {
+    label: ALE
+    style.fill: lightcoral
+}
+
+# Tracers
+
+step_mom_tracer_dyn: {
+    label: Tracers
+    style.fill: lightgreen
+}
+
+step_mom_tracer_dyn -> tracer_advect {
+    style.stroke: black
+}
+step_mom_tracer_dyn -> tracer_hordiff {
+    style.stroke: black
+}
+#step_mom_tracer_dyn -> tracer_vertdiff
+
+tracer_advect: {
+    label: Tracer advection
+    style.fill: lightgreen
+}
+
+tracer_hordiff: {
+    label: Tracer diffusion
+    style.fill: lightgreen
+}
+
+# Diagnostics
+
+calculate_diagnostic_fields: {
+    label: Diagnostics
+    style.fill: lightcoral
+}

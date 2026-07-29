@@ -400,6 +400,8 @@ Block Performance
 
 .. image:: img/corad_blocks.svg
 
+GPU speedups while preserving CPU performance
+
 
 FMS MPI Support
 ===============
@@ -468,7 +470,9 @@ Module efficiency
 Benchmark ALE
 =============
 
-.. image:: img/dycore_tree.svg
+.. image:: img/mom6code.svg
+
+TODO: Update this 
 
 
 Local arrays
@@ -588,26 +592,13 @@ Summary
 =======
 
 Can we preserve codebase?
-   Yes! ``do concurrent`` with OpenMP is a viable model
+   Yes! ``do concurrent`` with OpenMP is viable
 
 Bit reproducible?
-   Yes!  Operational work can continue
+   Yes!  CPU and GPU match on NVIDIA
 
 Retain CPU performance?
    Yes! And with GPU speedups
-
-
-Fortran on the GPU
-==================
-
-* It's working.  Numbers are competitive and still improving.
-
-* Reproducible.  Operational models can continue.
-
-* Compilers are only getting better.
-
-MOM6 can run on GPUs using standard Fortran constructs.  We expect further
-improvements as we gain proficiency with the algorithms and technology.
 
 ..
   Upcoming challenges

@@ -91,15 +91,32 @@ alt="img/dgemm_vs_daxpy.svg" />
 
 <section id="challenges" class="title-slide slide level1">
 <h1>Challenges</h1>
-<p>MOM6 is a community code used in ongoing research and operational
-tasks. This creates several constraints.</p>
-<ul>
-<li>Fairly large Fortran codebase (~200k LoC)</li>
-<li>Answer changes disrupt ongoing research</li>
-<li>Many solvers, each algorithmically different</li>
-<li>Solvers support dozens of customizations</li>
-</ul>
-<p>Can it be ported to GPUs without disruption?</p>
+<p>Porting MOM6 is not just a performance problem.</p>
+<table>
+<colgroup>
+<col style="width: 30%" />
+<col style="width: 70%" />
+</colgroup>
+<tbody>
+<tr>
+<td><strong>Code size</strong></td>
+<td>~200k lines of Fortran</td>
+</tr>
+<tr>
+<td><strong>Continuity</strong></td>
+<td>Answer changes disrupt ongoing research</td>
+</tr>
+<tr>
+<td><strong>Complexity</strong></td>
+<td>Many algorithms and customizations</td>
+</tr>
+<tr>
+<td><strong>Operational</strong></td>
+<td>The CPU path must remain viable</td>
+</tr>
+</tbody>
+</table>
+<p>Can we add GPUs without disrupting the model?</p>
 </section>
 
 <section id="porting-strategy" class="title-slide slide level1">

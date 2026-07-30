@@ -35,30 +35,24 @@ GPUs in 2026
 Challenges
 ==========
 
-MOM6 is a community code used in ongoing research and operational tasks.  This
-creates several constraints.
+Porting MOM6 is not just a performance problem.
 
-* Fairly large Fortran codebase (~200k LoC)
+.. list-table::
+   :widths: 30 70
 
-* Answer changes disrupt ongoing research
+   * - **Code size**
+     - ~200k lines of Fortran
 
-* Many solvers, each algorithmically different
+   * - **Continuity**
+     - Answer changes disrupt ongoing research
 
-* Solvers support dozens of customizations
+   * - **Complexity**
+     - Many algorithms and customizations
 
-Can it be ported to GPUs without disruption?
+   * - **Operational**
+     - The CPU path must remain viable
 
-..
-  Breakdown
-  ---------
-  
-  * Kernels may be over 1000 LoC
-  
-  * ``if``-blocks manage model features
-  
-  * Heavy use of derived types, even objects
-  
-  * Kernels contain function calls
+Can we add GPUs without disrupting the model?
 
 
 Porting Strategy

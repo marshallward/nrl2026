@@ -68,37 +68,46 @@ href="https://marshallward.org/nrl2026.html">https://marshallward.org/nrl2026.ht
   </aside>
 </section>
 
-<section id="gpu-technology" class="title-slide slide level1">
-<h1>GPU technology</h1>
+<section id="gpus-in-2020" class="title-slide slide level1">
+<h1>GPUs in 2020</h1>
 <figure>
 <img data-src="img/dgemm_vs_daxpy.svg" style="width:70.0%"
 alt="img/dgemm_vs_daxpy.svg" />
 </figure>
-<p>GPUs provide a potential 10x speedup</p>
+<p>Which regime describes MOM6?</p>
 </section>
 
-<section>
+<section id="gpus-in-2026" class="title-slide slide level1">
+<h1>GPUs in 2026</h1>
+<figure>
+<img data-src="img/axpy_flops_2025.svg" alt="img/axpy_flops_2025.svg" />
+</figure>
+<p>7x speedup has become 10x</p>
+</section>
+
 <section id="challenges" class="title-slide slide level1">
 <h1>Challenges</h1>
 <p>MOM6 is a community code used in ongoing research and operational
 tasks. This creates several constraints.</p>
 <ul>
 <li>Fairly large Fortran codebase (~200k LoC)</li>
-<li>Answer changes disrupt ongoing research activities</li>
+<li>Answer changes disrupt ongoing research</li>
 <li>Many solvers, each algorithmically different</li>
 <li>Solvers support dozens of customizations</li>
 </ul>
 <p>Can it be ported to GPUs without disruption?</p>
 </section>
-<section id="breakdown" class="slide level2">
-<h2>Breakdown</h2>
+
+<section id="goals" class="title-slide slide level1">
+<h1>Goals</h1>
 <ul>
-<li>Kernels may be over 1000 LoC</li>
-<li><code>if</code>-blocks manage model features</li>
-<li>Heavy use of derived types, even objects</li>
-<li>Kernels contain function calls</li>
+<li>Can the solvers be ported?</li>
+<li>Can we preserve the Fortran codebase?</li>
+<li>Will results be bit-reproducible?</li>
+<li>Can we retain CPU performance</li>
 </ul>
-</section></section>
+</section>
+
 <section id="gpu-programming" class="title-slide slide level1">
 <h1>GPU Programming</h1>
 <p><img data-src="img/kernel.svg" style="width:60.0%" alt="image" /></p>
@@ -173,7 +182,7 @@ do k=1,nz ; do j=js,je ; do I=is,ie
 enddo ; enddo ; enddo
 
 !$acc end parallel loop</code></pre>
-<p>CUDA threads per "gang" is set to 128.</p>
+<p>(Compiler sets CUDA threads per "gang" to 128)</p>
 </section>
 
 <section>
@@ -229,7 +238,7 @@ enddo</code></pre>
 </tr>
 <tr>
 <td>Separate</td>
-<td>Explicit memory management</td>
+<td>Manual memory management</td>
 </tr>
 </tbody>
 </table>
@@ -251,21 +260,20 @@ enddo</code></pre>
 
 <section id="strategy" class="title-slide slide level1">
 <h1>Strategy</h1>
-<ul>
-<li>Data transfers are expensive
-<ul>
-<li>Move the entire problem to GPU</li>
-</ul></li>
-<li>Shared/unified memory is unreliable
-<ul>
-<li>Manual memory management</li>
-</ul></li>
-<li>MOM codebase is large and complex
-<ul>
-<li>do concurrent where we can</li>
-<li>OpenMP / OpenACC where we must</li>
-</ul></li>
-</ul>
+<dl>
+<dt>Move the entire problem to the GPU</dt>
+<dd>
+<p>Avoid expensive data transfers, at high mem cost</p>
+</dd>
+<dt>Manual memory management</dt>
+<dd>
+<p>At least until unified memory is an option</p>
+</dd>
+<dt><code>do concurrent</code> if we can, OpenMP if we must</dt>
+<dd>
+<p>(... and OpenACC as a last resort)</p>
+</dd>
+</dl>
 </section>
 
 <section id="double-gyre-test" class="title-slide slide level1">
@@ -300,11 +308,6 @@ enddo</code></pre>
 <p><img data-src="img/repro.svg" alt="image" /></p>
 </section>
 
-<section id="dycore-breakdown" class="title-slide slide level1">
-<h1>Dycore Breakdown</h1>
-<p><img data-src="img/genoa_vs_h100.svg" alt="image" /></p>
-</section>
-
 <section id="blocking" class="title-slide slide level1">
 <h1>Blocking</h1>
 <table>
@@ -328,6 +331,11 @@ alt="image" /></p>
 <h1>Block Performance</h1>
 <p><img data-src="img/corad_blocks.svg" alt="image" /></p>
 <p>GPU speedups while preserving CPU performance</p>
+</section>
+
+<section id="dycore-breakdown" class="title-slide slide level1">
+<h1>Dycore Breakdown</h1>
+<p><img data-src="img/genoa_vs_h100.svg" alt="image" /></p>
 </section>
 
 <section id="fms-mpi-support" class="title-slide slide level1">
@@ -362,6 +370,7 @@ alt="img/fms_mpi.svg" />
 <section id="benchmark-ale" class="title-slide slide level1">
 <h1>Benchmark ALE</h1>
 <p><img data-src="img/mom6code.svg" alt="image" /></p>
+<p>TODO: Update this</p>
 </section>
 
 <section id="local-arrays" class="title-slide slide level1">

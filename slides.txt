@@ -14,13 +14,21 @@ Porting MOM6 to GPUs
    Progress update of MOM6 porting to GPUs
 
 
-GPU technology
-==============
+GPUs in 2020
+============
 
 .. figure:: img/dgemm_vs_daxpy.svg
    :width: 70%
 
-GPUs provide a potential 10x speedup
+Which regime describes MOM6?
+
+
+GPUs in 2026
+============
+
+.. figure:: img/axpy_flops_2025.svg
+
+7x speedup has become 10x
 
 
 Challenges
@@ -31,7 +39,7 @@ creates several constraints.
 
 * Fairly large Fortran codebase (~200k LoC)
 
-* Answer changes disrupt ongoing research activities
+* Answer changes disrupt ongoing research
 
 * Many solvers, each algorithmically different
 
@@ -39,30 +47,29 @@ creates several constraints.
 
 Can it be ported to GPUs without disruption?
 
-
-Breakdown
----------
-
-* Kernels may be over 1000 LoC
-
-* ``if``-blocks manage model features
-
-* Heavy use of derived types, even objects
-
-* Kernels contain function calls
-
-
 ..
-   Goals
-   =====
-   
-   * Can the solvers be ported?
-   
-   * Can we preserve the Fortran codebase?
-   
-   * Will results be bit-reproducible?
-   
-   * Can we retain CPU performance
+  Breakdown
+  ---------
+  
+  * Kernels may be over 1000 LoC
+  
+  * ``if``-blocks manage model features
+  
+  * Heavy use of derived types, even objects
+  
+  * Kernels contain function calls
+
+
+Goals
+=====
+
+* Can the solvers be ported?
+
+* Can we preserve the Fortran codebase?
+
+* Will results be bit-reproducible?
+
+* Can we retain CPU performance
 
 
 GPU Programming
@@ -183,7 +190,7 @@ is translated into an OpenACC kernel
 
    !$acc end parallel loop
 
-CUDA threads per "gang" is set to 128.
+(Compiler sets CUDA threads per "gang" to 128)
 
 .. vector length is compiler or hardware-dependent
 
@@ -257,7 +264,7 @@ Data Transfer?
 ======== ==================================
 Managed  ``allocate()`` management
 Unified  Automatic management of all memory
-Separate Explicit memory management
+Separate Manual memory management
 ======== ==================================
 
 For portability, we do **manual** and use **OpenMP**
@@ -291,19 +298,14 @@ Return result to host
 Strategy
 ========
 
-* Data transfers are expensive
+Move the entire problem to the GPU
+   Avoid expensive data transfers, at high mem cost
 
-  * Move the entire problem to GPU
+Manual memory management
+   At least until unified memory is an option
 
-* Shared/unified memory is unreliable
-
-  * Manual memory management
-
-* MOM codebase is large and complex
-
-  * do concurrent where we can
-
-  * OpenMP / OpenACC where we must
+``do concurrent`` if we can, OpenMP if we must
+   (... and OpenACC as a last resort)
 
 
 Double Gyre Test
@@ -340,6 +342,36 @@ Bit Reproducibility
 .. *Except!* ``(a*b)+c`` *does not suppress FMAs*
 
 
+Blocking
+========
+
+.. list-table::
+
+   * - .. image:: img/kblock.svg
+
+       CPU Layered
+
+     - .. image:: img/jblock.svg
+          :width: 78%
+
+       CPU Columnar
+         
+     - .. image:: img/gpublock.svg
+          :width: 90%   
+
+       GPU
+
+Configurable "block loops" optimize for each platform
+
+
+Block Performance
+=================
+
+.. image:: img/corad_blocks.svg
+
+GPU speedups while preserving CPU performance
+
+
 Dycore Breakdown
 ================
 
@@ -371,36 +403,6 @@ Dycore Breakdown
    --------------
 
    "Mixed bag" of 3d and 2d kernels?
-
-
-Blocking
-========
-
-.. list-table::
-
-   * - .. image:: img/kblock.svg
-
-       CPU Layered
-
-     - .. image:: img/jblock.svg
-          :width: 78%
-
-       CPU Columnar
-         
-     - .. image:: img/gpublock.svg
-          :width: 90%   
-
-       GPU
-
-Configurable "block loops" optimize for each platform
-
-
-Block Performance
-=================
-
-.. image:: img/corad_blocks.svg
-
-GPU speedups while preserving CPU performance
 
 
 FMS MPI Support

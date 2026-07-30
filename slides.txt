@@ -369,7 +369,7 @@ Block Performance
 
 .. image:: img/corad_blocks.svg
 
-GPU speedups while preserving CPU performance
+Optimize GPU while preserving CPU performance
 
 
 Dycore Breakdown
@@ -433,7 +433,7 @@ We are seeing scalability with GPU over MPI
 
 
 Module scaling
-==============
+--------------
 
 .. image:: img/mpi_scaling_per_module.svg
 

@@ -50,7 +50,7 @@ step_mom_dynamics -> mixedlayer_restrat {
 dycore: {
   label: ""
   style.fill: transparent
-  style.stroke: green
+  style.stroke: lightgreen
   style.stroke-width: 3
   style.border-radius: 999
 
@@ -105,7 +105,7 @@ step_mom_thermo: {
 step_mom_thermo -> diabatic {
     style.stroke: black
 }
-diabatic -> epbl.energetic_pbl {
+diabatic -> energetic_pbl {
     style.stroke: black
 }
 diabatic -> set_diffusivity {
@@ -118,17 +118,9 @@ diabatic: {
     style.fill: lightcoral
 }
 
-epbl: {
-  label: ""
-  style.fill: transparent
-  style.stroke: lightcoral
-  style.stroke-width: 3
-  style.border-radius: 999
-
-  energetic_pbl: {
-      label: ePBL
-      style.fill: lightcoral
-  }
+energetic_pbl: {
+    label: ePBL
+    style.fill: lightcoral
 }
 
 set_diffusivity: {

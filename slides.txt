@@ -481,8 +481,24 @@ Benchmark ALE
 .. image:: img/mom6code.svg
 
 
+Technical limitations
+=====================
+
+.. list-table::
+   :widths: 30 70
+
+   * - **Local Arrays**
+     - ``do concurrent`` does not understand local arrays
+
+   * - **Derived Types**
+     - Types must be managed independently from their arrays
+
+   * - **Objects**
+     - GPUs do not understand dynamic typing
+
+
 Local arrays
-============
+------------
 
 NVIDIA's ``do concurrent`` can't (yet) use local arrays
 
@@ -512,7 +528,7 @@ For now, OpenMP is a portable alternative.
 
 
 Derived Types
-=============
+-------------
 
 Derived types and their arrays are handled separately.
 
@@ -537,7 +553,7 @@ Care must be taken when updating derived types
 
 
 No Objects on GPUs
-==================
+------------------
 
 Dynamic object-oriented constructs are volatile
 

@@ -67,6 +67,116 @@ body {
   text-shadow: none; }
 
 /*********************************************
+ * TITLE SLIDE
+ *********************************************/
+.reveal #title-slide {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 74vh;
+  padding: 7vh 7vw;
+  position: relative;
+  overflow: visible;
+  text-align: left;
+}
+
+.reveal #title-slide::before {
+  content: "";
+  position: absolute;
+  inset: -45vh -34vw auto auto;
+  width: 56vw;
+  height: 150vh;
+  background: linear-gradient(155deg, rgba(66, 175, 250, 0.26), rgba(66, 175, 250, 0));
+  transform: skewX(-14deg);
+  pointer-events: none;
+}
+
+.reveal #title-slide .title-card {
+  position: relative;
+  z-index: 1;
+  max-width: 70%;
+  padding-left: 0.8em;
+  border-left: 0.16em solid #42affa;
+}
+
+.reveal #title-slide .title-kicker {
+  margin: 0 0 0.7em 0;
+  color: #8dcffc;
+  font-size: 0.55em;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.reveal #title-slide h1.title {
+  margin: 0;
+  font-size: 2.75em;
+  line-height: 0.95;
+  letter-spacing: -0.035em;
+  text-transform: none;
+}
+
+.reveal #title-slide .subtitle {
+  max-width: 14em;
+  margin-top: 0.8em;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 0.8em;
+}
+
+.reveal #title-slide .title-meta {
+  align-self: flex-end;
+  position: relative;
+  z-index: 1;
+  max-width: 75%;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.48em;
+  line-height: 1.2;
+  text-align: right;
+}
+
+.reveal #title-slide .title-meta p,
+.reveal #title-slide .title-meta div {
+  margin: 0;
+}
+
+.reveal #title-slide .author ul {
+  display: block;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  text-align: right;
+}
+
+.reveal #title-slide .author li {
+  display: inline;
+  margin: 0;
+}
+
+.reveal #title-slide .author li:not(:last-child)::after {
+  content: ", ";
+}
+
+@media (max-width: 800px) {
+  .reveal #title-slide {
+    min-height: 78vh;
+    padding: 6vh 6vw;
+  }
+
+  .reveal #title-slide .title-card {
+    max-width: 92%;
+  }
+
+  .reveal #title-slide h1.title {
+    font-size: 2.1em;
+  }
+
+  .reveal #title-slide .title-meta {
+    max-width: 88%;
+  }
+}
+
+/*********************************************
  * OTHER
  *********************************************/
 .reveal p {

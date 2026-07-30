@@ -10,6 +10,7 @@ Porting MOM6 to GPUs
 :description: Overview of GPU porting strategy for MOM6, with early results.
 :date: 2027-07-30
 :url: https://marshallward.org/nrl2026.html
+:kicker: NRL 2026
 :preface:
    Progress update of MOM6 porting to GPUs
 

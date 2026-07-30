@@ -79,27 +79,29 @@ $endfor$
     <div class="slides">
 
 $if(title)$
-<section id="$idprefix$title-slide">
+<section id="$idprefix$title-slide" class="deck-title">
   <!--div class="reveal" style="text-align: right;">
     <img src="img/noaa_logo.png"
          style="background: none; border: none; box-shadow: none;
          width: 30%"
          alt="NCI">
   </div-->
-  <h1 class="title">$title$</h1>
+  <div class="title-card">
+    <p class="title-kicker">$if(kicker)$$kicker$$else$NRL 2026$endif$</p>
+    <h1 class="title">$title$</h1>
 $if(subtitle)$
-  <p class="subtitle" style="text-align: left;">$subtitle$</p>
+    <p class="subtitle">$subtitle$</p>
 $endif$
+  </div>
+  <div class="title-meta">
 $for(author)$
-  <p class="author" style="text-align: right;">$author$</p>
+    <div class="author">$author$</div>
 $endfor$
 $for(organization)$
   <!-- org has a <p> for some reason... so use <div> -->
-  <div class="organization" style="text-align: right;">$organization$</div>
+    <div class="organization">$organization$</div>
 $endfor$
-$if(date)$
-  <p class="date" style="text-align: right;">$date$</p>
-$endif$
+  </div>
   <!-- Currently cannot add notes to a title slide, so have to do manually-->
   <aside class="notes">
     $preface$

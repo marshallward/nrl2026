@@ -6,19 +6,22 @@ step_mom: {
 }
 
 step_mom -> step_mom_dynamics {
-    style.stroke: black
+    style.stroke: white
 }
 step_mom -> step_mom_thermo {
-    style.stroke: black
+    style.stroke: white
 }
 step_mom -> ale_regridding_and_remapping {
-    style.stroke: black
+    style.stroke: white
 }
 step_mom -> step_mom_tracer_dyn {
-    style.stroke: black
+    style.stroke: white
 }
 step_mom -> calculate_diagnostic_fields {
-    style.stroke: black
+    style.stroke: white
+}
+step_mom -> eqn_of_state {
+    style.stroke: white
 }
 
 # Dynamics
@@ -29,19 +32,19 @@ step_mom_dynamics: {
 }
 
 step_mom_dynamics -> dycore.step_mom_dyn_split_RK2 {
-    style.stroke: black
+    style.stroke: white
 }
 step_mom_dynamics -> calc_slope_functions {
-    style.stroke: black
+    style.stroke: white
 }
 step_mom_dynamics -> thickness_diffuse {
-    style.stroke: black
+    style.stroke: white
 }
 step_mom_dynamics -> set_viscous_BBL {
-    style.stroke: black
+    style.stroke: white
 }
 step_mom_dynamics -> mixedlayer_restrat {
-    style.stroke: black
+    style.stroke: white
 }
 
 
@@ -65,12 +68,12 @@ dycore: {
 
 calc_slope_functions: {
     label: Lateral Mixing
-    style.fill: lightcoral
+    style.fill: goldenrod
 }
 
 thickness_diffuse: {
     label: Layer Diffusion
-    style.fill: lightcoral
+    style.fill: goldenrod
 }
 
 set_viscous_BBL: {
@@ -80,18 +83,18 @@ set_viscous_BBL: {
 
 mixedlayer_restrat: {
     label: Mixed Layer
-    style.fill: lightcoral
+    style.fill: goldenrod
 }
 
 
 calc_slope_functions -> calc_isoneutral_slopes {
-    style.stroke: black
+    style.stroke: white
 }
 #calc_slope_functions -> valc_visbeck_coeffs_old
 
 calc_isoneutral_slopes: {
     label: Neutral Surfaces
-    style.fill: lightcoral
+    style.fill: lightgreen
 }
 
 
@@ -103,13 +106,13 @@ step_mom_thermo: {
 }
 
 step_mom_thermo -> diabatic {
-    style.stroke: black
+    style.stroke: white
 }
 diabatic -> energetic_pbl {
-    style.stroke: black
+    style.stroke: white
 }
 diabatic -> set_diffusivity {
-    style.stroke: black
+    style.stroke: white
 }
 #diabatic -> applyboundaryfluxesinout
 
@@ -125,19 +128,19 @@ energetic_pbl: {
 
 set_diffusivity: {
     label: Diffusivity
-    style.fill: lightcoral
+    style.fill: goldenrod
 }
 
 set_diffusivity -> kappa_shear_vertex {
-    style.stroke: black
+    style.stroke: white
 }
 set_diffusivity -> full_convection {
-    style.stroke: black
+    style.stroke: white
 }
 
 kappa_shear_vertex: {
     label: Kappa Shear
-    style.fill: lightcoral
+    style.fill: goldenrod
 }
 
 full_convection: {
@@ -161,10 +164,10 @@ step_mom_tracer_dyn: {
 }
 
 step_mom_tracer_dyn -> tracer_advect {
-    style.stroke: black
+    style.stroke: white
 }
 step_mom_tracer_dyn -> tracer_hordiff {
-    style.stroke: black
+    style.stroke: white
 }
 #step_mom_tracer_dyn -> tracer_vertdiff
 
@@ -183,4 +186,11 @@ tracer_hordiff: {
 calculate_diagnostic_fields: {
     label: Diagnostics
     style.fill: lightcoral
+}
+
+# Unassociated
+
+eqn_of_state: {
+    label: EOS
+    style.fill: goldenrod
 }

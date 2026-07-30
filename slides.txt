@@ -475,7 +475,7 @@ Module efficiency
 .. * Implementation issues still exist
 
 
-Benchmark ALE
+Port Progress
 =============
 
 .. image:: img/mom6code.svg
@@ -578,23 +578,24 @@ Dynamic object-oriented constructs are volatile
 But this is not a problem unique to Fortran
 
 
-Async kernels
-=============
-
-.. image:: img/async1.png
-
-.. image:: img/async2.png
-
-Using ``async`` allows kernel overhead of one kernel to overlap with the work
-of another.
-
-.. TODO: code blocks?
-
-
-Async speedup
--------------
-
-.. image:: img/async_speedup.png
+..
+  Async kernels
+  =============
+  
+  .. image:: img/async1.png
+  
+  .. image:: img/async2.png
+  
+  Using ``async`` allows kernel overhead of one kernel to overlap with the work
+  of another.
+  
+  .. TODO: code blocks?
+  
+  
+  Async speedup
+  -------------
+  
+  .. image:: img/async_speedup.png
 
 
 ..
@@ -614,13 +615,13 @@ Summary
 =======
 
 Can we preserve codebase?
-   Yes! ``do concurrent`` with OpenMP is viable
+   ``do concurrent`` with OpenMP is viable
 
 Bit reproducible?
-   Yes!  CPU and GPU match on NVIDIA
+   CPU and GPU match on NVIDIA
 
 Retain CPU performance?
-   Yes! And with GPU speedups
+   GPU speedup with no CPU loss
 
 ..
   Upcoming challenges

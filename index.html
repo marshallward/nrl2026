@@ -41,8 +41,8 @@
     </header>
 
     <footer style="font-size: 1pc; position: absolute; bottom: 2%; left: 2%;">
-      <code><a
-href="https://marshallward.org/nrl2026.html">https://marshallward.org/nrl2026.html</a></code>
+      <code><p><a
+href="https://marshallward.org/nrl2026.html">https://marshallward.org/nrl2026.html</a></p></code>
     </footer>
 
     <div class="slides">
@@ -55,7 +55,7 @@ href="https://marshallward.org/nrl2026.html">https://marshallward.org/nrl2026.ht
          alt="NCI">
   </div-->
   <div class="title-card">
-    <p class="title-kicker">NRL 2026</p>
+    <p class="title-kicker"><p>NRL 2026</p></p>
     <h1 class="title">Porting MOM6 to GPUs</h1>
   </div>
   <div class="title-meta">
@@ -68,7 +68,7 @@ href="https://marshallward.org/nrl2026.html">https://marshallward.org/nrl2026.ht
   </div>
   <!-- Currently cannot add notes to a title slide, so have to do manually-->
   <aside class="notes">
-    Progress update of MOM6 porting to GPUs
+    <p>Progress update of MOM6 porting to GPUs</p>
   </aside>
 </section>
 
@@ -410,8 +410,8 @@ alt="img/fms_mpi.svg" />
 <h2>Module efficiency</h2>
 <p><img data-src="img/mpi_efficiency_per_module.svg" alt="image" /></p>
 </section></section>
-<section id="benchmark-ale" class="title-slide slide level1">
-<h1>Benchmark ALE</h1>
+<section id="port-progress" class="title-slide slide level1">
+<h1>Port Progress</h1>
 <p><img data-src="img/mom6code.svg" alt="image" /></p>
 </section>
 
@@ -493,32 +493,20 @@ endif ; enddo ; enddo</code></pre>
 end function density_linear</code></pre>
 <p>But this is not a problem unique to Fortran</p>
 </section></section>
-<section>
-<section id="async-kernels" class="title-slide slide level1">
-<h1>Async kernels</h1>
-<p><img data-src="img/async1.png" alt="image" /></p>
-<p><img data-src="img/async2.png" alt="image" /></p>
-<p>Using <code>async</code> allows kernel overhead of one kernel to
-overlap with the work of another.</p>
-</section>
-<section id="async-speedup" class="slide level2">
-<h2>Async speedup</h2>
-<p><img data-src="img/async_speedup.png" alt="image" /></p>
-</section></section>
 <section id="summary" class="title-slide slide level1">
 <h1>Summary</h1>
 <dl>
 <dt>Can we preserve codebase?</dt>
 <dd>
-<p>Yes! <code>do concurrent</code> with OpenMP is viable</p>
+<p><code>do concurrent</code> with OpenMP is viable</p>
 </dd>
 <dt>Bit reproducible?</dt>
 <dd>
-<p>Yes! CPU and GPU match on NVIDIA</p>
+<p>CPU and GPU match on NVIDIA</p>
 </dd>
 <dt>Retain CPU performance?</dt>
 <dd>
-<p>Yes! And with GPU speedups</p>
+<p>GPU speedup with no CPU loss</p>
 </dd>
 </dl>
 </section>

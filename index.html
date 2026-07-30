@@ -75,7 +75,7 @@ href="https://marshallward.org/nrl2026.html">https://marshallward.org/nrl2026.ht
 <section id="gpus-in-2020" class="title-slide slide level1">
 <h1>GPUs in 2020</h1>
 <figure>
-<img data-src="img/dgemm_vs_daxpy.svg" style="width:70.0%"
+<img data-src="img/dgemm_vs_daxpy.svg" style="width:65.0%"
 alt="img/dgemm_vs_daxpy.svg" />
 </figure>
 <p>Which regime describes MOM6?</p>
@@ -102,14 +102,37 @@ tasks. This creates several constraints.</p>
 <p>Can it be ported to GPUs without disruption?</p>
 </section>
 
-<section id="goals" class="title-slide slide level1">
-<h1>Goals</h1>
-<ul>
-<li>Can the solvers be ported?</li>
-<li>Can we preserve the Fortran codebase?</li>
-<li>Will results be bit-reproducible?</li>
-<li>Can we retain CPU performance</li>
-</ul>
+<section id="porting-strategy" class="title-slide slide level1">
+<h1>Porting Strategy</h1>
+<table>
+<colgroup>
+<col style="width: 24%" />
+<col style="width: 10%" />
+<col style="width: 66%" />
+</colgroup>
+<tbody>
+<tr>
+<td><strong>Preserve</strong></td>
+<td>→</td>
+<td>Keep MOM6 Fortran as the source of truth</td>
+</tr>
+<tr>
+<td><strong>Compute</strong></td>
+<td>→</td>
+<td>Kernelize solvers for remote calculation</td>
+</tr>
+<tr>
+<td><strong>Data</strong></td>
+<td>→</td>
+<td>Control flow of data between host and device</td>
+</tr>
+<tr>
+<td><strong>Verify</strong></td>
+<td>→</td>
+<td>Reproducible results and CPU performance</td>
+</tr>
+</tbody>
+</table>
 </section>
 
 <section id="gpu-programming" class="title-slide slide level1">
@@ -186,7 +209,7 @@ do k=1,nz ; do j=js,je ; do I=is,ie
 enddo ; enddo ; enddo
 
 !$acc end parallel loop</code></pre>
-<p>(Compiler sets CUDA threads per "gang" to 128)</p>
+<p>Loops are broken into "gangs" of 128</p>
 </section>
 
 <section>
@@ -373,7 +396,6 @@ alt="img/fms_mpi.svg" />
 <section id="benchmark-ale" class="title-slide slide level1">
 <h1>Benchmark ALE</h1>
 <p><img data-src="img/mom6code.svg" alt="image" /></p>
-<p>TODO: Update this</p>
 </section>
 
 <section id="local-arrays" class="title-slide slide level1">

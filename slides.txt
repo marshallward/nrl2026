@@ -19,7 +19,7 @@ GPUs in 2020
 ============
 
 .. figure:: img/dgemm_vs_daxpy.svg
-   :width: 70%
+   :width: 65%
 
 Which regime describes MOM6?
 
@@ -61,16 +61,27 @@ Can it be ported to GPUs without disruption?
   * Kernels contain function calls
 
 
-Goals
-=====
+Porting Strategy
+================
 
-* Can the solvers be ported?
+.. list-table::
+   :widths: 24 10 66
 
-* Can we preserve the Fortran codebase?
+   * - **Preserve**
+     - →
+     - Keep MOM6 Fortran as the source of truth
 
-* Will results be bit-reproducible?
+   * - **Compute**
+     - →
+     - Kernelize solvers for remote calculation
 
-* Can we retain CPU performance
+   * - **Data**
+     - →
+     - Control flow of data between host and device
+
+   * - **Verify**
+     - →
+     - Reproducible results and CPU performance
 
 
 GPU Programming
@@ -191,7 +202,7 @@ is translated into an OpenACC kernel
 
    !$acc end parallel loop
 
-(Compiler sets CUDA threads per "gang" to 128)
+Loops are broken into "gangs" of 128
 
 .. vector length is compiler or hardware-dependent
 
@@ -474,8 +485,6 @@ Benchmark ALE
 =============
 
 .. image:: img/mom6code.svg
-
-TODO: Update this 
 
 
 Local arrays
